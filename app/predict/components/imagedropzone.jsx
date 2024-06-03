@@ -7,7 +7,7 @@ import { useDropzone } from "react-dropzone";
 
 import { predict } from "@/app/actions";
 
-export default function ImageDropzone() {
+export function ImageDropzone() {
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 

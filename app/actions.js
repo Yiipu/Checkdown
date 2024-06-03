@@ -7,9 +7,9 @@ export async function predict(formdata) {
   })
     .then((response) => response.json())
     .then((data) => {
-      return {message : `${data.predict}`};
+      return { message: `${data.predict}` };
     })
     .catch((error) => {
-      return {error : `${error}`};
+      return { error: `${error}` };
     });
 }
