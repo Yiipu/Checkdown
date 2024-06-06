@@ -12,7 +12,7 @@ export default withPageAuthRequired(
         const dict = await getDictionary(lang);
 
         const { user } = await getSession();
-        var data = { created: null, privilege: null, f_id: null, f_name: null, file: null };
+        var data = { created: null, privilege: null, f_id: null, f_name: null, file: null, progress: null };
 
         try {
             var [workSpace,] = await pool.execute(
@@ -42,6 +42,23 @@ export default withPageAuthRequired(
             return notFound();
         }
 
+        try {
+            const sql = " SELECT task_id, is_done, updated_by_user, updated_at "
+                + " FROM progresses "
+                + " WHERE workspace_id = ? "
+                + " ORDER BY task_id ASC; "
+            var [progress,] = await pool.execute(sql, [slug]);
+            data.progress = progress;
+        } catch (err) {
+            console.error(err);
+            return notFound();
+        }
+
+        const initProgress = Array(progress.length).fill(false);
+        progress.forEach((task) => {
+            initProgress[task.task_id] = task.is_done;
+        });
+
         return (
             <main className="grid grid-cols-3 px-8">
                 <div>
@@ -62,8 +79,8 @@ export default withPageAuthRequired(
                     </div>
                 </div>
                 <div className="markdown-body col-span-2 overflow-auto h-[calc(100vh-88px)]">
-                    <SocketProvider room={slug} initProgress={[true, false, false]}>
-                        <MDXRemote source={data.file} components={customMDX()}/>
+                    <SocketProvider room={slug} initProgress={initProgress}>
+                        <MDXRemote source={data.file} components={customMDX()} />
                     </SocketProvider>
                 </div>
             </main>

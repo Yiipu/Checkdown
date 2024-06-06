@@ -1,9 +1,10 @@
-const { createServer } = require("http");
-const next = require("next");
-const { Server } = require("socket.io");
+import { createServer } from "http";
+import next from "next";
+import { Server } from "socket.io";
+import { pool } from "./lib/pool.js";
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = 'localhost';
+const hostname = "localhost";
 const port = 3000;
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port });
@@ -15,10 +16,19 @@ app.prepare().then(() => {
   const io = new Server(httpServer);
 
   io.on("connection", (socket) => {
-    socket.on("taskupdate", (id, checked) => {
+    socket.on("taskupdate", async (id, checked) => {
       // emit to all clients in the same room
-      let rooms = Array.from(socket.rooms);
-      io.to(rooms[1]).emit("taskupdated", { id, checked });
+      let room = Array.from(socket.rooms)[1];
+      const sql =
+        "INSERT INTO progresses (workspace_id, task_id, is_done) " +
+        "VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE is_done = VALUES(is_done);";
+      try {
+        await pool.execute(sql, [room, id, checked]);
+      } catch (err) {
+        console.error(err);
+        return;
+      }
+      io.to(room).emit("taskupdated", { id, checked });
     });
     socket.on("join", (room) => {
       socket.join(room);
