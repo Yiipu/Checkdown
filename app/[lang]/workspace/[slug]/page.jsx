@@ -1,4 +1,4 @@
-import { pool } from "lib/database";
+import { pool } from "lib/pool";
 import { getDictionary } from "/lib/dictionaries";
 import { withPageAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { notFound } from 'next/navigation';
