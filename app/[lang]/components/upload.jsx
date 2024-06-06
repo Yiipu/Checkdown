@@ -25,10 +25,11 @@ export function FileDropZone({ userID }) {
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
     return (
-        <div>
-            <div {...getRootProps()}>
+        <div className="h-full">
+            <input type="checkbox" checked={isPublic} onChange={() => setIsPublic(!isPublic)} /> make_public
+            <div {...getRootProps()} className="h-72">
                 <input {...getInputProps()} />
-                <div>
+                <div className="h-full flex justify-center items-center">
                     {isDragActive ? (
                         <p>drop_zone_drag_active</p>
                     ) : (
@@ -36,7 +37,6 @@ export function FileDropZone({ userID }) {
                     )}
                 </div>
             </div>
-            <input type="checkbox" checked={isPublic} onChange={() => setIsPublic(!isPublic)} /> make_public
         </div>
     );
 }

@@ -15,18 +15,18 @@ export default async function RootLayout({ children, params: { lang } }) {
     <html lang={lang}>
       <UserProvider>
         <body>
-          <header>
+          <header className="flex p-8">
+            <h1><Link href="/">CheckDown</Link></h1>
+            <div className="flex-auto"></div>
             {user ? (
-              <div>
-                <Link href='/me'>my_profile</Link>
+              <div className="flex justify-between gap-2">
                 <p>{user.nickname}</p>
-                <p>{user.email}</p>
+                <Link href='/me'>my_profile</Link>
                 <a href="/api/auth/logout">Logout</a>
               </div>
             ) : (
               <Link href="/api/auth/login">Login</Link>
             )}
-            <Link href="/">home</Link>
           </header>
           {children}
         </body>

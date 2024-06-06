@@ -42,23 +42,25 @@ export default withPageAuthRequired(
         }
 
         return (
-            <main>
+            <main className="grid grid-cols-3 px-8">
                 <div>
-                    work_space_details
+                    <ul className="flex justify-evenly">
+                        <li>
+                            <button>
+                                share_code
+                            </button>
+                        </li>
+                        <li>
+                            <button>
+                                quit_workspace
+                            </button>
+                        </li>
+                    </ul>
+                    <div className="p-8">
+                        work_space_details
+                    </div>
                 </div>
-                <ul>
-                    <li>
-                        <button>
-                            share_code
-                        </button>
-                    </li>
-                    <li>
-                        <button>
-                            quit_workspace
-                        </button>
-                    </li>
-                </ul>
-                <div className="markdown-body">
+                <div className="markdown-body col-span-2 overflow-auto h-[calc(100vh-88px)]">
                     <MDXRemote source={data.file} components={customMDX()} />
                 </div>
             </main>

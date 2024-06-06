@@ -32,14 +32,13 @@ export default async function Page({ params: { lang, slug: [pathUserID, fileName
 
         return (
             <main>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-3 px-8">
                     <div className="col-span-1">
                         <span>workspaces_on_this_file</span>
                         {user && <WorkSpaceList workspace_init={fileWorkSpaces} fileID={file.f_id} userID={user.sub} />}
                     </div>
-                    <div className="col-span-3">
-                        <div>preview_only</div>
-                        <div className="markdown-body pointer-events-none" >
+                    <div className="col-span-2">
+                        <div className="markdown-body overflow-auto h-[calc(100vh-88px)]" >
                             {file.error ?
                                 <div>{file.error}</div>
                                 : (!file.is_public && !isOwner) ?
@@ -60,24 +59,21 @@ export default async function Page({ params: { lang, slug: [pathUserID, fileName
         userWorkSpaces = await listUserWorkSpaces(pathUserID);
     }
     return (
-        <div>
-            <h1>{pathUserID}</h1>
-            <div>
-                <span>user_files</span>
+        <div className="grid grid-cols-3">
+            <div className="col-span-1 p-8">
                 {userFiles.error ?
                     <div>{userFiles.error}</div>
                     :
-                    <ul>
+                    <ul className='flex-row'>
                         {userFiles.map((file, _) => (
-                            (file.is_public || isOwner) && <li key={_}>
+                            (file.is_public || isOwner) && <li key={_} className=''>
                                 <Link href={`/${pathUserID}/${file.f_name}`}>{file.f_name}</Link>
                             </li>
                         ))}
                     </ul>
                 }
             </div>
-            <div>
-                <span>user_workspaces</span>
+            <div className="col-span-2 p-8">
                 {isOwner && <ul>
                     {userWorkSpaces.map((ws, _) => (
                         <li key={_}>
