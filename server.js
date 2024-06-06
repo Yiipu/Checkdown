@@ -15,7 +15,14 @@ app.prepare().then(() => {
   const io = new Server(httpServer);
 
   io.on("connection", (socket) => {
-    // ...
+    socket.on("taskupdate", (id, checked) => {
+      // emit to all clients in the same room
+      let rooms = Array.from(socket.rooms);
+      io.to(rooms[1]).emit("taskupdated", { id, checked });
+    });
+    socket.on("join", (room) => {
+      socket.join(room);
+    });
   });
 
   httpServer

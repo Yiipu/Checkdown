@@ -4,6 +4,7 @@ import { withPageAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { notFound } from 'next/navigation';
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { customMDX } from "./components/mdx/custommdx";
+import { SocketProvider } from "./components/socket/socketprovider";
 import '/styles/github-markdown.css'
 
 export default withPageAuthRequired(
@@ -61,7 +62,9 @@ export default withPageAuthRequired(
                     </div>
                 </div>
                 <div className="markdown-body col-span-2 overflow-auto h-[calc(100vh-88px)]">
-                    <MDXRemote source={data.file} components={customMDX()} />
+                    <SocketProvider room={slug} initProgress={[true, false, false]}>
+                        <MDXRemote source={data.file} components={customMDX()}/>
+                    </SocketProvider>
                 </div>
             </main>
         );
