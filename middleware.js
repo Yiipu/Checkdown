@@ -18,11 +18,6 @@ export async function middleware(request) {
   // Check if there is any supported locale in the pathname
   const { pathname } = request.nextUrl;
 
-  // Reject /socket.io requests
-  if (pathname.startsWith("/socket.io")) {
-    return new Response("Bad Request", { status: 400 });
-  }
-
   // Redirect /me to /{userID}
   if (pathname === "/me") {
     const session = await getSession(request);
