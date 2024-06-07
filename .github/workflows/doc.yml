@@ -1,0 +1,33 @@
+# .github/workflows/doc.yml
+name: Document
+
+on:
+  workflow_dispatch
+
+jobs:
+  doc:
+    runs-on: ubuntu-latest
+    environment:
+      name: development
+    env:
+      TBLS_DSN: "mysql://${{secrets.DB_USER}}:${{secrets.DB_PASSWORD}}@${{secrets.DB_HOST}}:${{secrets.DB_PORT}}/${{secrets.DB_DATABASE}}"
+      TBLS_DOC_PATH: "doc/schema"
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        uses: k1low/setup-tbls@v1
+      -
+        name: Run tbls for generate database document
+        run: tbls doc -t mermaid
+      # -
+      #   name: Diff database and document
+      #   run: tbls diff -t mermaid
+      -
+        name: Commit doc/schema
+        uses: EndBug/add-and-commit@v9
+        with:
+          default_author: github_actions
+          message: ":pencil: Update database document"
+          add: "doc/schema"
