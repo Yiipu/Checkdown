@@ -26,10 +26,11 @@ app.prepare().then(() => {
 
     socket.on("taskupdate", async (id, checked) => {
       // emit to all clients in the same room
-      const sql =
-        "INSERT INTO progresses (workspace_id, task_id, is_done, updated_by_user) " +
-        "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE is_done = VALUES(is_done);";
       try {
+        const sql =
+          "INSERT INTO progresses (workspace_id, task_id, is_done, updated_by_user) " +
+          "VALUES (?, ?, ?, ?) " +
+          "ON DUPLICATE KEY UPDATE is_done = VALUES(is_done), updated_by_user = VALUES(updated_by_user);";
         await pool.execute(sql, [workSpaceID, id, checked, userID]);
       } catch (err) {
         console.error(err);
