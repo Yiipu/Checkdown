@@ -6,6 +6,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { customMDX } from "./components/mdx/custommdx";
 import { SocketProvider } from "./components/socket/socketprovider";
 import { encrypt } from "/lib/utils";
+import { ShareCodeBtn, LeaveWorkspaceBtn } from "./components/function/btn";
 import '/styles/github-markdown.css'
 
 export default withPageAuthRequired(
@@ -14,7 +15,7 @@ export default withPageAuthRequired(
         const dict = await getDictionary(lang);
 
         const { user } = await getSession();
-        var data = { created: null, privilege: null, f_id: null, f_name: null, file: null, progress: null };
+        var data = { created: null, privilege: null, f_id: null, f_name: null, file: null, progress: null, invite_code: null };
 
         // get workspace details
         try {
@@ -62,6 +63,16 @@ export default withPageAuthRequired(
             return notFound();
         }
 
+        // get invite code
+        try {
+            const sql = "SELECT invite_code, code_expire_at FROM workspaces WHERE id = ?;";
+            var [inviteCode,] = await pool.execute(sql, [slug]);
+            data.invite_code = inviteCode[0].invite_code && inviteCode[0].code_expire_at > new Date() ? inviteCode[0].invite_code : null;
+        } catch (err) {
+            console.error(err);
+            return notFound();
+        }
+
         // initialize progress.
         const initProgress = Array();
         data.progress.forEach((task) => {
@@ -77,14 +88,10 @@ export default withPageAuthRequired(
                 <div>
                     <ul className="flex justify-evenly">
                         <li>
-                            <button>
-                                share_code
-                            </button>
+                            <ShareCodeBtn workspaceID={slug} initCode={data.invite_code} />
                         </li>
                         <li>
-                            <button>
-                                quit_workspace
-                            </button>
+                            <LeaveWorkspaceBtn workspaceID={slug} />
                         </li>
                     </ul>
                     <div className="p-8">

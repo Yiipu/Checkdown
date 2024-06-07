@@ -1,6 +1,7 @@
 import "./globals.css";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
 import { getSession } from "@auth0/nextjs-auth0";
+import { JoinWorkSpaceBtn } from "./components/joinworkspace";
 import Link from "next/link";
 
 export const metadata = {
@@ -23,6 +24,7 @@ export default async function RootLayout({ children, params: { lang } }) {
             {/* user info */}
             {user ? (
               <div className="flex justify-between gap-2">
+                <JoinWorkSpaceBtn />
                 <p>{user.nickname}</p>
                 <Link href='/me'>my_profile</Link>
                 <a href="/api/auth/logout">Logout</a>
