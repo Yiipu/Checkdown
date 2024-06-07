@@ -16,8 +16,11 @@ export default async function RootLayout({ children, params: { lang } }) {
       <UserProvider>
         <body>
           <header className="flex p-8">
+            {/* LOGO */}
             <h1><Link href="/">CheckDown</Link></h1>
+            {/* gap */}
             <div className="flex-auto"></div>
+            {/* user info */}
             {user ? (
               <div className="flex justify-between gap-2">
                 <p>{user.nickname}</p>

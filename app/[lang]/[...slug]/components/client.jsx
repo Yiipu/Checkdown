@@ -8,13 +8,14 @@ export function WorkSpaceList({ workspace_init, fileID, userID }) {
     const [formattedDates, setFormattedDates] = useState([]);
 
     useEffect(() => {
+        // useEffect prevents hydration error
         const dates = workSpace.map(ws => `${ws.created.getUTCMonth() + 1}/${ws.created.getUTCDate()}`);
         setFormattedDates(dates);
     }, [workSpace]);
 
     return (
         <div>
-            {/* TODO: use server action */}
+            {/* TODO: ? use formdata ? */}
             <button onClick={async () => {
                 const res = await createWorkSpace(fileID, userID.split('|')[1]);
                 if (res.error) {

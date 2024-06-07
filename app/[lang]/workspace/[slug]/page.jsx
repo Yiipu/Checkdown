@@ -9,40 +9,47 @@ import { encrypt } from "/lib/utils";
 import '/styles/github-markdown.css'
 
 export default withPageAuthRequired(
+    // ensuer user logged in
     async function Page({ params: { lang, slug } }) {
         const dict = await getDictionary(lang);
 
         const { user } = await getSession();
         var data = { created: null, privilege: null, f_id: null, f_name: null, file: null, progress: null };
 
+        // get workspace details
         try {
             var [workSpace,] = await pool.execute(
                 "SELECT created, privilege, f_id, f_name FROM w_uw_view WHERE id = ? AND u_id = ?;",
                 [slug, user.sub.split("|")[1]]
             );
             if (workSpace.length == 0) {
+                // user not in workspace || workspace not found
                 return notFound();
             }
+            // @assert(workSpace.length == 1)
             workSpace = workSpace[0];
+            data.created = workSpace.created;
+            data.privilege = workSpace.privilege;
+            data.f_id = workSpace.f_id;
+            data.f_name = workSpace.f_name;
             try {
                 const [file,] = await pool.execute(
                     "SELECT file FROM mdx_files WHERE id = ?;",
                     [workSpace.f_id]
                 );
-                data.created = workSpace.created;
-                data.privilege = workSpace.privilege;
-                data.f_id = workSpace.f_id;
-                data.f_name = workSpace.f_name;
                 data.file = file[0].file;
             } catch (err) {
+                // file not found
                 console.error(err);
                 return notFound();
             }
         } catch (err) {
+            // database connection error
             console.error(err);
             return notFound();
         }
 
+        // get progress
         try {
             const sql = " SELECT task_id, is_done, updated_by_user, updated_at "
                 + " FROM progresses "
@@ -55,11 +62,14 @@ export default withPageAuthRequired(
             return notFound();
         }
 
+        // initialize progress.
+        // @assert(progress.length <= max(task_id))
         const initProgress = Array(progress.length).fill(false);
         progress.forEach((task) => {
             initProgress[task.task_id] = task.is_done;
         });
 
+        // encrypt user id and workspace id for socket connection
         const encryptedUserID = encrypt(JSON.stringify(user.sub.split("|")[1]));
         const encryptedWorkSpaceID = encrypt(JSON.stringify(slug));
 

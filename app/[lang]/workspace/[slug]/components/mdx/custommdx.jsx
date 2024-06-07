@@ -24,6 +24,7 @@ export function customMDX(components) {
         li: (props) => {
             const { firstString, children } = extractTaskItemChildren(props);
 
+            // convert task item to checkbox
             if (firstString.slice(0, 3) == "[ ]") {
                 const id = `CheckID-${idCounter++}`;
                 return (

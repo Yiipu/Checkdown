@@ -11,8 +11,12 @@ export function CheckBox({ id }) {
     }
 
     return (
-        <input type="checkbox" checked={checked} className="task-list-item-checkbox" check-id={id} onChange={async () => {
-            await socket.emit("taskupdate", index, !checked);
-        }} />
+        <input type="checkbox"
+            checked={checked}
+            className="task-list-item-checkbox"
+            check-id={id}
+            onChange={async () => {
+                await socket.emit("taskupdate", index, !checked);
+            }} />
     )
 }

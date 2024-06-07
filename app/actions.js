@@ -14,5 +14,5 @@ export async function predict(formdata) {
     });
 }
 
-import { createWorkSpace } from '/lib/database.ts';
+import { createWorkSpace } from "/lib/database.ts";
 export { createWorkSpace };

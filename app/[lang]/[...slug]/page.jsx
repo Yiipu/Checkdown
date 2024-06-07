@@ -17,13 +17,13 @@ export default async function Page({ params: { lang, slug: [pathUserID, fileName
     const { user } = session ? session : { user: null };
     const isOwner = user ? (user.sub.split('|')[1] === pathUserID) : false;
 
-    // if fileName, preview
+    // if path is /user/fileName, route file preview
     if (fileName) {
-        // get workspaces the fist time
         var fileWorkSpaces = [{ id: null, created: null, privilege: null }];
         const file = await getFile(fileName, pathUserID);
 
         if (user) {
+            // get workspaces the fist time
             fileWorkSpaces = await listFileWorkSpace(file.f_id, user.sub.split('|')[1]);
             if (fileWorkSpaces.error) {
                 fileWorkSpaces = [];
@@ -41,7 +41,8 @@ export default async function Page({ params: { lang, slug: [pathUserID, fileName
                         <div className="markdown-body overflow-auto h-[calc(100vh-88px)]" >
                             {file.error ?
                                 <div>{file.error}</div>
-                                : (!file.is_public && !isOwner) ?
+                                // visibility check
+                                : (!file.is_public && !isOwner) ? 
                                     <div>not_authorized</div>
                                     : <MDXRemote source={file.f} />
                             }
@@ -52,7 +53,7 @@ export default async function Page({ params: { lang, slug: [pathUserID, fileName
         )
     }
 
-    // else, user's profile
+    // if path is /user, route user's profile
     const userFiles = await listUserFiles(pathUserID);
     var userWorkSpaces = [];
     if (isOwner) {
@@ -65,6 +66,7 @@ export default async function Page({ params: { lang, slug: [pathUserID, fileName
                     <div>{userFiles.error}</div>
                     :
                     <ul className='flex-row'>
+                        {/* user's uploaded files */}
                         {userFiles.map((file, _) => (
                             (file.is_public || isOwner) && <li key={_} className=''>
                                 <Link href={`/${pathUserID}/${file.f_name}`}>{file.f_name}</Link>
@@ -75,6 +77,7 @@ export default async function Page({ params: { lang, slug: [pathUserID, fileName
             </div>
             <div className="col-span-2 p-8">
                 {isOwner && <ul>
+                    {/* user's workspaces */}
                     {userWorkSpaces.map((ws, _) => (
                         <li key={_}>
                             <Link href={`/workspace/${ws.id}`}>
