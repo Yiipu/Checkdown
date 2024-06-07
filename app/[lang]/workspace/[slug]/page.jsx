@@ -63,9 +63,8 @@ export default withPageAuthRequired(
         }
 
         // initialize progress.
-        // @assert(progress.length <= max(task_id))
-        const initProgress = Array(progress.length).fill(false);
-        progress.forEach((task) => {
+        const initProgress = Array();
+        data.progress.forEach((task) => {
             initProgress[task.task_id] = task.is_done;
         });
 

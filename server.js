@@ -19,24 +19,23 @@ app.prepare().then(() => {
   io.on("connection", (socket) => {
     const info = socket.handshake.auth;
     const { workSpaceID, userID } = {
-      workSpaceID: parseInt(decrypt(info.workSpaceID)),
+      workSpaceID: decrypt(info.workSpaceID).replace(/^"|"$/g, ""),
       userID: decrypt(info.userID).replace(/^"|"$/g, ""),
     };
     socket.join(workSpaceID);
 
     socket.on("taskupdate", async (id, checked) => {
       // emit to all clients in the same room
-      let room = Array.from(socket.rooms)[1];
       const sql =
         "INSERT INTO progresses (workspace_id, task_id, is_done, updated_by_user) " +
         "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE is_done = VALUES(is_done);";
       try {
-        await pool.execute(sql, [room, id, checked, userID]);
+        await pool.execute(sql, [workSpaceID, id, checked, userID]);
       } catch (err) {
         console.error(err);
         return;
       }
-      io.to(room).emit("taskupdated", { id, checked });
+      io.to(workSpaceID).emit("taskupdated", { id, checked });
     });
   });
 
