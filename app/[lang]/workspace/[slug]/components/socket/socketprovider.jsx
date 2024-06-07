@@ -1,15 +1,24 @@
 "use client"
-import { useEffect, createContext, useState, useContext } from 'react';
-import { socket } from 'lib/socket';
+import { useEffect, createContext, useState, useContext, useRef } from 'react';
+import { io } from "socket.io-client";
 
 const SocketContext = createContext();
 
-export function SocketProvider({ children, room, initProgress }) {
+export function SocketProvider({ children, userID, workSpaceID, initProgress }) {
     const [isConnected, setIsConnected] = useState(false);
     const [transport, setTransport] = useState("N/A");
     const [progress, setProgress] = useState(initProgress);
+    const socketRef = useRef();
 
     useEffect(() => {
+        socketRef.current = io({
+            auth: (cb) => {
+                cb({ workSpaceID: workSpaceID, userID: userID });
+            },
+        });
+
+        const socket = socketRef.current;
+
         if (socket.connected) {
             onConnect();
         }
@@ -21,9 +30,6 @@ export function SocketProvider({ children, room, initProgress }) {
             socket.io.engine.on("upgrade", (transport) => {
                 setTransport(transport.name);
             });
-
-            // join the workspace room
-            socket.emit("join", room);
         }
 
         function onDisconnect() {
@@ -32,8 +38,6 @@ export function SocketProvider({ children, room, initProgress }) {
         }
 
         function onTaskUpdated({ id, checked }) {
-            // TODO: BUG: this log appears twice in the console
-            // console.log(`task updated: ${id} ${checked}`);
             setProgress((prev) => {
                 const newProgress = [...prev];
                 newProgress[id] = checked;
@@ -48,11 +52,12 @@ export function SocketProvider({ children, room, initProgress }) {
         return () => {
             socket.off("connect", onConnect);
             socket.off("disconnect", onDisconnect);
+            socket.disconnect();
         };
-    }, [room]);
+    }, [userID, workSpaceID]);
 
     return (
-        <SocketContext.Provider value={[socket, isConnected, transport, progress]}>
+        <SocketContext.Provider value={[socketRef.current, isConnected, transport, progress]}>
             {children}
         </SocketContext.Provider>
     );

@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { customMDX } from "./components/mdx/custommdx";
 import { SocketProvider } from "./components/socket/socketprovider";
+import { encrypt } from "/lib/utils";
 import '/styles/github-markdown.css'
 
 export default withPageAuthRequired(
@@ -59,6 +60,9 @@ export default withPageAuthRequired(
             initProgress[task.task_id] = task.is_done;
         });
 
+        const encryptedUserID = encrypt(JSON.stringify(user.sub.split("|")[1]));
+        const encryptedWorkSpaceID = encrypt(JSON.stringify(slug));
+
         return (
             <main className="grid grid-cols-3 px-8">
                 <div>
@@ -79,7 +83,7 @@ export default withPageAuthRequired(
                     </div>
                 </div>
                 <div className="markdown-body col-span-2 overflow-auto h-[calc(100vh-88px)]">
-                    <SocketProvider room={slug} initProgress={initProgress}>
+                    <SocketProvider userID={encryptedUserID} workSpaceID={encryptedWorkSpaceID} initProgress={initProgress}>
                         <MDXRemote source={data.file} components={customMDX()} />
                     </SocketProvider>
                 </div>
