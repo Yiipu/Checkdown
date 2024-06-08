@@ -2,10 +2,13 @@
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useRouter } from 'next/navigation';
+import { useUser } from "@auth0/nextjs-auth0/client";
 
-export function FileDropZone({ userID }) {
+export function FileDropZone() {
     const [isPublic, setIsPublic] = React.useState(false);
     const router = useRouter();
+    const { user, error, isLoading } = useUser();
+    const userID = user?.sub.split("|")[1];
 
     const onDrop = useCallback(async (acceptedFiles) => {
         const file = acceptedFiles[0];
@@ -22,11 +25,10 @@ export function FileDropZone({ userID }) {
             router.push(`/${userID}/${resBody.fileName}`);
         }
     }, [isPublic, router, userID]);
-
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
     return (
-        <div className="h-full">
+        user && <div className="h-full">
             <input type="checkbox" checked={isPublic} onChange={() => setIsPublic(!isPublic)} /> make_public
             <div {...getRootProps()} className="h-72">
                 <input {...getInputProps()} />
@@ -40,4 +42,4 @@ export function FileDropZone({ userID }) {
             </div>
         </div>
     );
-}
+};

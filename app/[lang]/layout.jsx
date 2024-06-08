@@ -1,8 +1,6 @@
 import "./globals.css";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
-import { getSession } from "@auth0/nextjs-auth0";
-import { JoinWorkSpaceBtn } from "./components/joinworkspace";
-import Link from "next/link";
+import { LayoutHeader } from "./components/header"
 
 export const metadata = {
   title: "Create Next App",
@@ -10,29 +8,11 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children, params: { lang } }) {
-  const session = await getSession();
-  const user = session ? session.user : null;
   return (
     <html lang={lang}>
       <UserProvider>
         <body>
-          <header className="flex p-8">
-            {/* LOGO */}
-            <h1><Link href="/">CheckDown</Link></h1>
-            {/* gap */}
-            <div className="flex-auto"></div>
-            {/* user info */}
-            {user ? (
-              <div className="flex justify-between gap-2">
-                <JoinWorkSpaceBtn />
-                <p>{user.nickname}</p>
-                <Link href='/me'>my_profile</Link>
-                <a href="/api/auth/logout">Logout</a>
-              </div>
-            ) : (
-              <Link href="/api/auth/login">Login</Link>
-            )}
-          </header>
+          <LayoutHeader />
           {children}
         </body>
       </UserProvider>

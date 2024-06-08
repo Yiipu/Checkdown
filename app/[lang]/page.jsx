@@ -1,11 +1,7 @@
 import { FileDropZone } from "./components/upload";
-import { getSession } from '@auth0/nextjs-auth0';
 import Link from 'next/link';
 
 export default async function HomePage() {
-    const session = await getSession();
-    const user = session ? session.user : null;
-
     return (
         <main>
             <div className="flex justify-around">
@@ -17,7 +13,7 @@ export default async function HomePage() {
             <div className="grid grid-cols-2 p-8">
                 <div>
                     <div className="h-80">
-                        {user && <FileDropZone userID={user.sub.split('|')[1]} />}
+                        <FileDropZone/>
                     </div>
                 </div>
                 <div>
