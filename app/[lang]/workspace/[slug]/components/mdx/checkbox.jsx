@@ -6,9 +6,11 @@ export function CheckBox({ id }) {
     var checked = false;
 
     const index = id.split('-')[1];
-    if (progress.length > index) {
-        checked = progress[index];
-    }
+
+    checked = progress[index];
+    if (checked === undefined) {
+        checked = false
+    };
 
     return (
         <input type="checkbox"
