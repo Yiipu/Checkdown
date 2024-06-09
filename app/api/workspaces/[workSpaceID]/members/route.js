@@ -18,3 +18,7 @@ export const DELETE = withApiAuthRequired(async function (req, { params: { workS
 
   return Response.redirect(new URL(`/`, req.url));
 });
+
+export const POST = withApiAuthRequired(async function (req, { params: { workSpaceID } }) {
+  return new Response(null, { status: 501 });
+});

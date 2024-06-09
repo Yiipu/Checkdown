@@ -13,6 +13,3 @@ export async function predict(formdata) {
       return { error: `${error}` };
     });
 }
-
-import { createWorkSpace } from "/lib/database.ts";
-export { createWorkSpace };

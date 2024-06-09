@@ -11,17 +11,14 @@ export function JoinWorkSpaceBtn() {
     }
 
     async function joinWorkSpace() {
-        const res = await fetch(`/api/workspace/usecode/${code}`);
+        const res = await fetch(`/api/usecode?code=${code}`, { method: "POST" });
         if (!res.ok) {
             console.error(res.statusText);
             return;
         }
-        if (res.redirected) {
-            router.push(res.url)
-            return;
-        }
         const data = await res.json();
-        console.log(data);
+        router.push(`/workspace/${data.id}`);
+        return;
     }
 
     return (

@@ -1,11 +1,11 @@
 import { pool } from "lib/pool";
-import { getDictionary } from "/lib/dictionaries";
+import { getDictionary } from "lib/dictionaries";
 import { withPageAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { notFound } from 'next/navigation';
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { customMDX } from "./components/mdx/custommdx";
 import { SocketProvider } from "./components/socket/socketprovider";
-import { encrypt } from "/lib/utils";
+import { encrypt, getFile } from "lib/utils";
 import { ShareCodeBtn, LeaveWorkspaceBtn } from "./components/function/btn";
 import '/styles/github-markdown.css'
 
@@ -34,11 +34,8 @@ export default withPageAuthRequired(
             data.f_id = workSpace.f_id;
             data.f_name = workSpace.f_name;
             try {
-                const [file,] = await pool.execute(
-                    "SELECT file FROM mdx_files WHERE id = ?;",
-                    [workSpace.f_id]
-                );
-                data.file = file[0].file;
+                const file = await getFile(data.f_id, user.sub.split("|")[1]);
+                data.file = file.content;
             } catch (err) {
                 // file not found
                 console.error(err);

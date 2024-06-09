@@ -7,10 +7,7 @@ export function ShareCodeBtn({ workspaceID, initCode }) {
 
     async function generateCode() {
         // generate code
-        const res = await fetch(`/api/workspace/${workspaceID}/invitecode`,
-            {
-                method: "POST",
-            });
+        const res = await fetch(`/api/workspaces/${workspaceID}/invitecode`, { method: "PUT", });
         if (!res.ok) {
             console.error(res.statusText);
             return;
@@ -21,10 +18,7 @@ export function ShareCodeBtn({ workspaceID, initCode }) {
 
     async function expireCode() {
         // expire code
-        const res = await fetch(`/api/workspace/${workspaceID}/invitecode`,
-            {
-                method: "DELETE",
-            });
+        const res = await fetch(`/api/workspaces/${workspaceID}/invitecode`, { method: "DELETE", });
         if (!res.ok) {
             console.error(res.statusText);
             return;
@@ -48,24 +42,15 @@ export function ShareCodeBtn({ workspaceID, initCode }) {
 
 export function LeaveWorkspaceBtn({ workspaceID }) {
     const router = useRouter()
-    
+
     async function leaveWorkspace() {
         // leave workspace
-        const res = await fetch(`/api/workspace/${workspaceID}/members`,
-            {
-                method: "DELETE",
-            });
+        // BUG: DELETE http://localhost:3000/zh 405 (Method Not Allowed)
+        const res = await fetch(`/api/workspaces/${workspaceID}/members`, { method: "DELETE", });
         if (!res.ok) {
             console.error(res.statusText);
             return;
         }
-        if (res.redirected) {
-            router.push(res.url)
-            return;
-        }
-        const data = await res.json();
-        console.log(data);
-
     }
 
     return (

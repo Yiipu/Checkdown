@@ -1,0 +1,30 @@
+import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
+import { pool } from 'lib/pool'
+
+export const POST = withApiAuthRequired(async function (req) {
+    const res = new Response();
+
+    const { user } = await getSession(req, res);
+    const userID = user.sub.split("|")[1];
+
+    const searchParams = req.nextUrl.searchParams;
+    const code = searchParams.get('code');
+
+    try {
+        const [workspace,] = await pool.execute("SELECT id FROM workspaces WHERE invite_code = ? AND code_expire_at > NOW();", [code]);
+        if (!workspace.length) {
+            return new Response(null, { status: 404 }, res);
+        }
+        const workSpaceID = workspace[0].id;
+        await pool.execute(
+            "INSERT INTO user_workspaces (user_sub, workspace_id, privilege) " +
+            "VALUES (?, ?, 'partner') " +
+            "ON DUPLICATE KEY UPDATE user_sub=user_sub;",
+            [userID, workSpaceID]);
+
+        return Response.json({ id: workSpaceID }, { status: 201 }, res);
+    } catch (err) {
+        console.error(err);
+        return new Response(null, { status: 500 }, res);
+    }
+});

@@ -16,13 +16,14 @@ export function FileDropZone() {
         formdata.append("file", file);
         formdata.append("isPublic", isPublic);
         // TODO: use server action
-        const res = await fetch("/api/upload", {
+        const res = await fetch(`/api/mdxfiles?is_public=${isPublic}`, {
             method: "POST",
             body: formdata,
         });
         const resBody = await res.json();
         if (res.status === 201) {
             router.push(`/${userID}/${resBody.fileName}`);
+            return;
         }
     }, [isPublic, router, userID]);
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
