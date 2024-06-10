@@ -14,13 +14,13 @@ export async function insertFile(
   isPublic: Boolean
 ) {
   if (fileBuffer.byteLength > 16777215) {
-    return { error: "File size too large." };
+    return { error: "File size too large.", status: 400};
   }
   if (
     fileName.length > 255 ||
     !["mdx", "md"].includes(fileName.split(".")[1])
   ) {
-    return { error: "File type not accepted" };
+    return { error: "File type not accepted", status: 400};
   }
 
   fileName = processFileName(fileName);
@@ -57,5 +57,6 @@ export async function insertFile(
     }
   } catch (error) {
     console.error("Failed to get connection", error);
+    return { error: "Failed to get connection", status: 500 };
   }
 }

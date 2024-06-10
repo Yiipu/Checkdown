@@ -1,6 +1,35 @@
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { pool } from "/lib/pool";
 
+/**
+ * @swagger
+ * /api/workspaces/{workSpaceID}/invitecode:
+ *   put:
+ *     description: Update a workspace's invite code
+ *     parameters:
+ *       - name: workSpaceID
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the workspace to update
+ *     responses:
+ *       200:
+ *         description: Successfully updated the invite code
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: string
+ *       403:
+ *         description: User is not a manager
+ *       500:
+ *         description: Database error
+ *       404:
+ *         description: Workspace not found
+ */
 export const PUT = withApiAuthRequired(async function (req, { params: { workSpaceID } }) {
   const res = new Response();
   const { user } = await getSession(req, res);
@@ -11,6 +40,9 @@ export const PUT = withApiAuthRequired(async function (req, { params: { workSpac
     const sql =
       "SELECT privilege FROM user_workspaces WHERE user_sub = ? AND workspace_id = ?;";
     const [privilege] = await pool.execute(sql, [userID, workSpaceID]);
+    if (privilege.length == 0) {
+      return new Response(null, { status: 404 });
+    }
     if (privilege.length && privilege[0].privilege != "manager") {
       return new Response(null, { status: 403 });
     }
@@ -34,6 +66,33 @@ export const PUT = withApiAuthRequired(async function (req, { params: { workSpac
   return Response.json({ code: code });
 });
 
+/**
+ * @swagger
+ * /api/workspaces/{workSpaceID}/invitecode:
+ *   delete:
+ *     description: Delete a workspace's invite code
+ *     parameters:
+ *       - name: workSpaceID
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the workspace to update
+ *     responses:
+ *       200:
+ *         description: Successfully deleted the invite code
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: string
+ *       403:
+ *         description: User is not a manager
+ *       500:
+ *         description: Database error
+ */
 export const DELETE = withApiAuthRequired(async function (req, { params: { workSpaceID } }) {
   const res = new Response();
   const { user } = await getSession(req, res);

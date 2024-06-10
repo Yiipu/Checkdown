@@ -1,6 +1,31 @@
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { pool } from "/lib/pool";
 
+/**
+ * @swagger
+ * /api/workspaces:
+ *   post:
+ *     description: Create a new workspace
+ *     parameters:
+ *       - name: file_id
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the file to create a workspace for
+ *     responses:
+ *       201:
+ *         description: Successfully created the workspace
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 workSpaceID:
+ *                   type: string
+ *       500:
+ *         description: Database error
+ */
 export const POST = withApiAuthRequired(async function (req) {
     const res = new Response();
     const { user } = await getSession(req, res);
@@ -34,32 +59,42 @@ export const POST = withApiAuthRequired(async function (req) {
     }
 });
 
-export const DELETE = withApiAuthRequired(async function (req) {
-    const res = new Response();
-    const { user } = await getSession(req, res);
-    const userID = user.sub.split("|")[1];
-
-    const formData = await req.formData();
-    const workSpaceID = formData.get("workSpaceID");
-
-    try {
-        const [privilege,] = await pool.execute(
-            "SELECT privilege FROM user_workspaces WHERE user_sub = ? AND workspace_id = ?;",
-            [userID, workSpaceID]
-        );
-        if (privilege[0].privilege !== "manager") {
-            return new Response(JSON.stringify({ error: "permission denied" }), { status: 403 });
-        }
-        await pool.execute("DELETE FROM progresses WHERE workspace_id = ?;", [workSpaceID]);
-        await pool.execute("DELETE FROM user_workspaces WHERE workspace_id = ?;", [workSpaceID]);
-        await pool.execute("DELETE FROM workspaces WHERE id = ?;", [workSpaceID]);
-        return new Response(JSON.stringify({}), { status: 200 });
-    } catch (error) {
-        console.error(error);
-        return new Response(JSON.stringify({ error: "database error" }), { status: 500 });
-    }
-})
-
+/**
+ * @swagger
+ * /api/workspaces:
+ *   get:
+ *     description: Get workspaces
+ *     parameters:
+ *       - name: file_id
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: The ID of the file to get workspaces for
+ *     responses:
+ *       200:
+ *         description: A list of workspaces
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       time_created:
+ *                         type: string
+ *                       privilege:
+ *                         type: string
+ *                       file_name:
+ *                         type: string
+ *       500:
+ *         description: Database error
+ */
 export const GET = withApiAuthRequired(async function (req) {
     const { user } = await getSession(req);
     const userID = user.sub.split("|")[1];

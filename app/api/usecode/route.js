@@ -1,6 +1,33 @@
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { pool } from 'lib/pool'
 
+/**
+ * @swagger
+ * /api/usecode:
+ *   post:
+ *     description: Join a workspace
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The invite code of the workspace to join
+ *     responses:
+ *       201:
+ *         description: Successfully joined the workspace
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *       404:
+ *         description: Workspace not found
+ *       500:
+ *         description: Server error
+ */
 export const POST = withApiAuthRequired(async function (req) {
     const res = new Response();
 

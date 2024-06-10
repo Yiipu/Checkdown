@@ -1,6 +1,40 @@
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { pool } from 'lib/pool'
 
+/**
+ * @swagger
+ * /api/mdxfiles/{fileID}:
+ *   patch:
+ *     description: Update a file
+ *     parameters:
+ *       - name: fileID
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the file to update
+ *       - name: is_public
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *         description: set the file to public or private
+ *       - name: name
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: The new name of the file
+ *     responses:
+ *       200:
+ *         description: File updated successfully
+ *       400:
+ *         description: No parameters provided
+ *       403:
+ *         description: User does not have the privilege to update the file
+ *       500:
+ *         description: Server error
+ */
 export const PATCH = withApiAuthRequired(async function (req, { params: { fileID } }) {
     const res = new Response();
 
@@ -35,6 +69,40 @@ export const PATCH = withApiAuthRequired(async function (req, { params: { fileID
     }
 });
 
+/**
+ * @swagger
+ * /api/mdxfiles/{fileID}:
+ *   get:
+ *     description: Get a file
+ *     parameters:
+ *       - name: fileID
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the file to get
+ *     responses:
+ *       200:
+ *         description: A file
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       name:
+ *                         type: string
+ *                       content:
+ *                         type: string
+ *       404:
+ *         description: File not found, or user does not have the privilege to access the file
+ *       500:
+ *         description: Server error
+ */
 export const GET = async function (req, { params: { fileID } }) {
     const res = new Response();
 

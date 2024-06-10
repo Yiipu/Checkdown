@@ -1,0 +1,505 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "CheckDown API",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "OAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "http://localhost:3000/api/auth/login",
+            "scopes": {
+              "read:users": "Read users",
+              "write:users": "Write users"
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [],
+  "paths": {
+    "/api/mdxfiles/{fileID}": {
+      "patch": {
+        "description": "Update a file",
+        "parameters": [
+          {
+            "name": "fileID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the file to update"
+          },
+          {
+            "name": "is_public",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "set the file to public or private"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The new name of the file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File updated successfully"
+          },
+          "400": {
+            "description": "No parameters provided"
+          },
+          "403": {
+            "description": "User does not have the privilege to update the file"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "get": {
+        "description": "Get a file",
+        "parameters": [
+          {
+            "name": "fileID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the file to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "content": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "File not found, or user does not have the privilege to access the file"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/mdxfiles": {
+      "post": {
+        "description": "Upload a file",
+        "parameters": [
+          {
+            "name": "is_public",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Whether the file is public or not"
+          }
+        ],
+        "requestBody": {
+          "description": "The file to upload.",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "File created successfully"
+          },
+          "400": {
+            "description": "Bad request. File is too large or file type not accepted"
+          },
+          "409": {
+            "description": "Conflict. File with the same name and user already exists"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "get": {
+        "description": "Get a list of files",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The offset of the first item to return"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The numbers of items to return"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "sub"
+            },
+            "description": "The user ID"
+          },
+          {
+            "name": "file_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The file name to fuzzy search for"
+          },
+          {
+            "name": "is_public",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "filter by public files, when not specified, return all files if user is owner else return only public files"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "public": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No files found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/usecode": {
+      "post": {
+        "description": "Join a workspace",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The invite code of the workspace to join"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully joined the workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workSpaceID}/invitecode": {
+      "put": {
+        "description": "Update a workspace's invite code",
+        "parameters": [
+          {
+            "name": "workSpaceID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the workspace to update"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the invite code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User is not a manager"
+          },
+          "404": {
+            "description": "Workspace not found"
+          },
+          "500": {
+            "description": "Database error"
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a workspace's invite code",
+        "parameters": [
+          {
+            "name": "workSpaceID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the workspace to update"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the invite code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User is not a manager"
+          },
+          "500": {
+            "description": "Database error"
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workSpaceID}": {
+      "delete": {
+        "description": "Delete a workspace",
+        "parameters": [
+          {
+            "name": "workSpaceID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the workspace to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the workspace"
+          },
+          "302": {
+            "description": "Successfully left the workspace and redirected"
+          },
+          "403": {
+            "description": "Permission denied"
+          },
+          "500": {
+            "description": "Database error"
+          }
+        }
+      }
+    },
+    "/api/workspaces": {
+      "post": {
+        "description": "Create a new workspace",
+        "parameters": [
+          {
+            "name": "file_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the file to create a workspace for"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "workSpaceID": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Database error"
+          }
+        }
+      },
+      "get": {
+        "description": "Get workspaces",
+        "parameters": [
+          {
+            "name": "file_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The ID of the file to get workspaces for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of workspaces",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "time_created": {
+                            "type": "string"
+                          },
+                          "privilege": {
+                            "type": "string"
+                          },
+                          "file_name": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Database error"
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}

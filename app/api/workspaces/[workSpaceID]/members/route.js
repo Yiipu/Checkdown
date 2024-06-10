@@ -1,6 +1,24 @@
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { pool } from "/lib/pool";
 
+/**
+ * @swagger
+ * /api/workspaces/{workSpaceID}:
+ *   delete:
+ *     description: Leave a workspace
+ *     parameters:
+ *       - name: workSpaceID
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the workspace to leave
+ *     responses:
+ *       302:
+ *         description: Successfully left the workspace and redirected
+ *       500:
+ *         description: Database error
+ */
 export const DELETE = withApiAuthRequired(async function (req, { params: { workSpaceID } }) {
   const res = new Response();
   const { user } = await getSession(req, res);

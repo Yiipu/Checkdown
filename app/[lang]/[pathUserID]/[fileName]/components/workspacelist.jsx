@@ -40,12 +40,7 @@ export function WorkSpaceList({ fileID }) {
                                 ws.privilege: {ws.privilege} <br />
                             </Link>
                             <button onClick={async () => {
-                                const formdata = new FormData();
-                                formdata.append("workSpaceID", ws.id);
-                                await fetch("/api/workspaces", {
-                                    method: "DELETE",
-                                    body: formdata,
-                                }).then(res => {
+                                await fetch(`/api/workspaces/${ws.id}`, { method: "DELETE", }).then(res => {
                                     if (res.ok) {
                                         setWorkSpace(workSpace.filter(w => w.id !== ws.id));
                                     } else {

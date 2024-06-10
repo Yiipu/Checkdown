@@ -13,6 +13,7 @@ export default async function Page({ params: { lang, pathUserID } }) {
                 <FileList pathUserID={pathUserID} />
             </div>
             <div className="col-span-2 p-8">
+                {/* TODO: hide when not owner */}
                 <WorkSpaceList />
             </div>
         </div>
