@@ -11,7 +11,7 @@ import { pool } from "/lib/pool";
  *        in: path
  *        required: true
  *        schema:
- *          type: string
+ *          type: integer
  *        description: The ID of the workspace to delete
  *     responses:
  *       200:
@@ -21,13 +21,10 @@ import { pool } from "/lib/pool";
  *       500:
  *         description: Database error
  */
-export const DELETE = withApiAuthRequired(async function (req) {
+export const DELETE = withApiAuthRequired(async function (req, { params: { workSpaceID } }) {
     const res = new Response();
     const { user } = await getSession(req, res);
     const userID = user.sub.split("|")[1];
-
-    const searchParams = req.nextUrl.searchParams;
-    const workSpaceID = searchParams.get("workSpaceID");
 
     try {
         const [privilege,] = await pool.execute(
