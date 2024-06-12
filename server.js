@@ -24,6 +24,20 @@ app.prepare().then(() => {
     };
     socket.join(workSpaceID);
 
+    socket.on("ready", async () => {
+      try {
+        const sql = " SELECT task_id, is_done, updated_by_user, updated_at "
+          + " FROM progresses "
+          + " WHERE workspace_id = ? "
+          + " ORDER BY task_id ASC; "
+        const [progress,] = await pool.execute(sql, [workSpaceID]);
+        io.to(socket.id).emit("progress", progress);
+      } catch (err) {
+        console.error(err);
+        return;
+      }
+    });
+
     socket.on("taskupdate", async (id, checked) => {
       // emit to all clients in the same room
       try {
@@ -36,7 +50,12 @@ app.prepare().then(() => {
         console.error(err);
         return;
       }
-      io.to(workSpaceID).emit("taskupdated", { id, checked });
+      io.to(workSpaceID).emit(
+        "taskupdated",
+        {
+          id,
+          taskInfo: { task_id: id, is_done: checked, updated_by_user: userID, updated_at: new Date() }
+        });
     });
   });
 

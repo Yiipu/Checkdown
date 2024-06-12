@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from 'next/navigation'
+import { Button } from "@nextui-org/button";
+import { Snippet } from "@nextui-org/snippet";
 
 export function ShareCodeBtn({ workspaceID, initCode }) {
     const [code, setCode] = useState(initCode);
@@ -27,14 +29,14 @@ export function ShareCodeBtn({ workspaceID, initCode }) {
     }
 
     return (
-        <div>
+        <div className="h-[36px]">
             {code ?
-                <div>
-                    <p>{code}</p>
-                    <button onClick={expireCode}>expire_code</button>
+                <div className="flex ">
+                    <Snippet size="sm" hideSymbol>{code}</Snippet>
+                    <button onClick={expireCode} color="danger" size="sm">🗑️</button>
                 </div>
                 :
-                <button onClick={generateCode}>generate_code</button>
+                <button onClick={generateCode} size="sm">📤 generate_code</button>
             }
         </div>
     );
@@ -54,6 +56,6 @@ export function LeaveWorkspaceBtn({ workspaceID }) {
     }
 
     return (
-        <button onClick={leaveWorkspace}>leave_workspace</button>
+        <button onClick={leaveWorkspace} className="h-[36px]" color="danger">❌ leave</button>
     );
 }

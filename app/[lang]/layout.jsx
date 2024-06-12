@@ -1,5 +1,7 @@
 import "./globals.css";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
+import { NextUIProvider } from '@nextui-org/system'
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { LayoutHeader } from "./components/header"
 
 export const metadata = {
@@ -20,8 +22,16 @@ export default async function RootLayout({ children, params: { lang } }) {
     <html lang={lang}>
       <UserProvider>
         <body>
-          <LayoutHeader />
-          {children}
+          <NextUIProvider>
+            <NextThemesProvider attribute="class" defaultTheme="dark">
+              <LayoutHeader />
+              <div className="w-full flex justify-center">
+                <div className="max-w-[1024px]">
+                  {children}
+                </div>
+              </div>
+            </NextThemesProvider>
+          </NextUIProvider>
         </body>
       </UserProvider>
     </html>

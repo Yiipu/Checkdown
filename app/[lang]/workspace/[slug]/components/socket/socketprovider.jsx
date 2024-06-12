@@ -4,10 +4,10 @@ import { io } from "socket.io-client";
 
 const SocketContext = createContext();
 
-export function SocketProvider({ children, userID, workSpaceID, initProgress }) {
+export function SocketProvider({ children, userID, workSpaceID }) {
     const [isConnected, setIsConnected] = useState(false);
     const [transport, setTransport] = useState("N/A");
-    const [progress, setProgress] = useState(initProgress);
+    const [progress, setProgress] = useState([]);
     const socketRef = useRef();
 
     useEffect(() => {
@@ -26,6 +26,7 @@ export function SocketProvider({ children, userID, workSpaceID, initProgress }) 
         function onConnect() {
             setIsConnected(true);
             setTransport(socket.io.engine.transport.name);
+            socket.emit("ready");
 
             socket.io.engine.on("upgrade", (transport) => {
                 setTransport(transport.name);
@@ -37,17 +38,27 @@ export function SocketProvider({ children, userID, workSpaceID, initProgress }) 
             setTransport("N/A");
         }
 
-        function onTaskUpdated({ id, checked }) {
+        function onTaskUpdated({ id, taskInfo }) {
             setProgress((prev) => {
                 const newProgress = [...prev];
-                newProgress[id] = checked;
+                newProgress[id] = taskInfo;
                 return newProgress;
             });
+        }
+
+        function onInitProgress(progress) {
+            const newProgress = Array();
+            progress.map((item) => {
+                newProgress[item.task_id] = item;
+            })
+            console.log(newProgress);
+            setProgress(newProgress);
         }
 
         socket.on("connect", onConnect);
         socket.on("disconnect", onDisconnect);
         socket.on("taskupdated", onTaskUpdated);
+        socket.on("progress", onInitProgress);
 
         return () => {
             socket.off("connect", onConnect);

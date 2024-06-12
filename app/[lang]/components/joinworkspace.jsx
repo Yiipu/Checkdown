@@ -1,14 +1,13 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from 'next/navigation'
+import { Popover, PopoverTrigger, PopoverContent } from "@nextui-org/popover";
+import { Button } from "@nextui-org/button";
+import { Input } from "@nextui-org/input";
 
 export function JoinWorkSpaceBtn() {
     const [code, setCode] = useState();
     const router = useRouter()
-
-    function onChange(e) {
-        setCode(e.target.value);
-    }
 
     async function joinWorkSpace() {
         const res = await fetch(`/api/usecode?code=${code}`, { method: "POST" });
@@ -22,9 +21,16 @@ export function JoinWorkSpaceBtn() {
     }
 
     return (
-        <div>
-            <input type="text" placeholder="join_workspace" value={code} onChange={onChange} className="min-w-28 text-black" />
-            <button onClick={joinWorkSpace}>Q</button>
-        </div>
+        <Popover>
+            <PopoverTrigger>
+                <button>➕</button>
+            </PopoverTrigger>
+            <PopoverContent>
+                <div className="flex">
+                    <Input value={code} onValueChange={setCode} placeholder="Code" />
+                    <Button onClick={joinWorkSpace} className=" ml-1">Join</Button>
+                </div>
+            </PopoverContent>
+        </Popover>
     );
 }

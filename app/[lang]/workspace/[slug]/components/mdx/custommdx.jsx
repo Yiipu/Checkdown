@@ -1,5 +1,6 @@
 import { CodeBlock } from "./codeblock";
 import { CheckBox } from "./checkbox";
+import { Link } from "@nextui-org/link";
 
 function extractTaskItemChildren(props) {
     var firstString = "";
@@ -15,21 +16,26 @@ function extractTaskItemChildren(props) {
         return;
     }
 
-    return {firstString, children};
+    return { firstString, children };
 }
 
 export function customMDX(components) {
     let idCounter = 0;
+    let headerIDCounter = 0;
     return {
+        h1: (props) => <h1 id={headerIDCounter++} {...props} />,
+        h2: (props) => <h2 id={headerIDCounter++} {...props} />,
+        h3: (props) => <h3 id={headerIDCounter++} {...props} />,
+        h4: (props) => <h4 id={headerIDCounter++} {...props} />,
         li: (props) => {
             const { firstString, children } = extractTaskItemChildren(props);
 
             // convert task item to checkbox
             if (firstString.slice(0, 3) == "[ ]") {
-                const id = `CheckID-${idCounter++}`;
+                const name = `CheckID-${idCounter++}`;
                 return (
                     <li className="task-list-item">
-                        <CheckBox id={id} />
+                        <CheckBox name={name} />
                         {children}
                     </li>
                 );
@@ -40,6 +46,7 @@ export function customMDX(components) {
             const isInlineCode = !props.className;
             return isInlineCode ? <code {...props} /> : <CodeBlock {...props} />;
         }),
+        a: (props) => <Link {...props} />,
         ...components,
     };
 }

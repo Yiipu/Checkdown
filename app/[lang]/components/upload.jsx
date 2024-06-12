@@ -15,7 +15,6 @@ export function FileDropZone() {
         const formdata = new FormData();
         formdata.append("file", file);
         formdata.append("isPublic", isPublic);
-        // TODO: use server action
         const res = await fetch(`/api/mdxfiles?is_public=${isPublic}`, {
             method: "POST",
             body: formdata,
