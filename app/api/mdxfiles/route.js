@@ -144,7 +144,7 @@ export const GET = (async function (req) {
     }
 
     try {
-        let query = "SELECT f_name AS name, f_id AS id , is_public AS public FROM u_f_view ";
+        let query = "SELECT u_id AS user_id, f_name AS name, f_id AS id , is_public AS public, description FROM u_f_view ";
         let params = [];
 
         if (isPublic !== null) {

@@ -1,5 +1,6 @@
 import { Link } from "@nextui-org/link"
 import { Demo } from "./components/demo"
+import { FileList } from "./market/components/publiclist"
 
 export default function Page({ params: { lang } }) {
     return (
@@ -11,7 +12,7 @@ export default function Page({ params: { lang } }) {
                 <Demo />
             </div>
             <section>
-                It&apos;s built with <Link href="https://nextjs.org/">Next.js</Link>, <Link href="https://socket.io/">Socket.IO</Link> and <Link href="https://mdxjs.com/">MDX</Link>. Our <Link href="https://github.com/Yiipu/checkdown">Github</Link>.
+                It&apos;s built with <Link href="https://nextjs.org/">Next.js</Link>, <Link href="https://socket.io/">Socket.IO</Link> and <Link href="https://mdxjs.com/">MDX</Link>. Visit source code on <Link href="https://github.com/Yiipu/checkdown">Github</Link>.
             </section>
             <div className="md:flex">
                 <section className="grid grid-cols-2 gap-2 pr-4 md:w-[600px]">
@@ -23,7 +24,6 @@ export default function Page({ params: { lang } }) {
                     You can start with a markdown file, search for a public one, or join an existing workspace with an invite code.
                 </section>
             </div>
-
         </div>
     )
 }

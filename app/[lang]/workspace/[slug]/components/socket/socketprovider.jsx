@@ -51,7 +51,6 @@ export function SocketProvider({ children, userID, workSpaceID }) {
             progress.map((item) => {
                 newProgress[item.task_id] = item;
             })
-            console.log(newProgress);
             setProgress(newProgress);
         }
 

@@ -38,10 +38,9 @@ export function FileDropZone() {
         const xhr = new XMLHttpRequest();
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("isPublic", isPublic);
         formData.append("userID", userID);
 
-        xhr.open("POST", "/api/mdxfiles");
+        xhr.open("POST", `/api/mdxfiles?is_public=${isPublic ? 1 : 0}`);
         xhr.upload.onprogress = (event) => {
             if (event.lengthComputable) {
                 const progress = event.loaded / event.total * 100;
