@@ -32,7 +32,7 @@ export const POST = withApiAuthRequired(async function (req) {
     const res = new Response();
 
     const { user } = await getSession(req, res);
-    const userID = user.sub.split("|")[1];
+    const userID = user.sub;
 
     const searchParams = req.nextUrl.searchParams;
     const code = searchParams.get('code');

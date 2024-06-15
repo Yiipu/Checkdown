@@ -29,7 +29,7 @@ import { pool } from "/lib/pool";
 export const POST = withApiAuthRequired(async function (req) {
     const res = new Response();
     const { user } = await getSession(req, res);
-    const userID = user.sub.split("|")[1];
+    const userID = user.sub;
 
     const searchParams = req.nextUrl.searchParams;
     const fileID = searchParams.get("file_id");
@@ -48,6 +48,11 @@ export const POST = withApiAuthRequired(async function (req) {
                 workSpaceID,
                 "manager",
             ]);
+        // file popularity + 1
+        await connection.execute(
+            "UPDATE mdx_files SET popularity = popularity + 1 WHERE id = ?;",
+            [fileID]
+        );
         await connection.commit();
         connection.release();
         return new Response(JSON.stringify({ workSpaceID: workSpaceID }), { status: 201 });
@@ -97,7 +102,7 @@ export const POST = withApiAuthRequired(async function (req) {
  */
 export const GET = withApiAuthRequired(async function (req) {
     const { user } = await getSession(req);
-    const userID = user.sub.split("|")[1];
+    const userID = user.sub;
 
     const searchParams = req.nextUrl.searchParams;
     const fileID = searchParams.get('file_id');

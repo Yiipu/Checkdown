@@ -8,6 +8,7 @@ import { Skeleton } from "@nextui-org/skeleton";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@nextui-org/navbar";
 import { Search } from "./search";
 import { ThemeSwitcher } from "./darkmode";
+import { FileDropZone } from "./upload";
 
 export function LayoutHeader() {
     const { user, isLoading } = useUser();
@@ -21,6 +22,7 @@ export function LayoutHeader() {
                 <NavbarItem className="flex gap-2">
                     <ThemeSwitcher />
                     <Search />
+                    <FileDropZone/>
                     {user && <JoinWorkSpaceBtn />}
                 </NavbarItem>
                 {/* user info */}

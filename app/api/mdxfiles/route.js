@@ -40,7 +40,7 @@ export const POST = withApiAuthRequired(async function (req) {
     const res = new Response();
 
     const { user } = await getSession(req, res);
-    const userID = user.sub.split("|")[1];
+    const userID = user.sub;
 
     const searchParams = req.nextUrl.searchParams;
     const isPublic = searchParams.get('is_public') == 1;
@@ -119,7 +119,7 @@ export const POST = withApiAuthRequired(async function (req) {
  */
 export const GET = (async function (req) {
     const session = await getSession(req);
-    const userID = session?.user.sub.split("|")[1] || null;
+    const userID = session?.user.sub || null;
 
     const res = new Response();
 

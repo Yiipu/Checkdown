@@ -21,7 +21,10 @@ export async function middleware(request) {
   // Redirect /me to /{userID}
   if (pathname === "/me") {
     const session = await getSession(request);
-    const userID = session.user.sub.split("|")[1];
+    const userID = session?.user?.sub;
+    if (!userID) {
+      return NextResponse.redirect("/api/auth/login");
+    }
     request.nextUrl.pathname = `/${userID}`;
     return NextResponse.redirect(request.nextUrl);
   }

@@ -25,10 +25,8 @@ export default async function RootLayout({ children, params: { lang } }) {
           <NextUIProvider>
             <NextThemesProvider attribute="class" defaultTheme="dark">
               <LayoutHeader />
-              <div className="w-full flex justify-center">
-                <div className="max-w-[1024px]">
+              <div className="w-full mx-auto max-w-[1024px] px-6">
                   {children}
-                </div>
               </div>
             </NextThemesProvider>
           </NextUIProvider>

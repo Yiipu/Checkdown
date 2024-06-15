@@ -23,7 +23,7 @@ export default withPageAuthRequired(
         try {
             var [workSpace,] = await pool.execute(
                 "SELECT created, privilege, f_id, f_name FROM w_uw_view WHERE id = ? AND u_id = ?;",
-                [slug, user.sub.split("|")[1]]
+                [slug, user.sub]
             );
             if (workSpace.length == 0) {
                 // user not in workspace || workspace not found
@@ -36,7 +36,7 @@ export default withPageAuthRequired(
             data.f_id = workSpace.f_id;
             data.f_name = workSpace.f_name;
             try {
-                const file = await getFile(data.f_id, user.sub.split("|")[1]);
+                const file = await getFile(data.f_id, user.sub);
                 data.file = file.content;
             } catch (err) {
                 // file not found
@@ -70,7 +70,7 @@ export default withPageAuthRequired(
         }
 
         // encrypt user id and workspace id for socket connection
-        const encryptedUserID = encrypt(JSON.stringify(user.sub.split("|")[1]));
+        const encryptedUserID = encrypt(JSON.stringify(user.sub));
         const encryptedWorkSpaceID = encrypt(JSON.stringify(slug));
 
         return (

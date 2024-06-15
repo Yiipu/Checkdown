@@ -21,7 +21,7 @@ export function Search() {
 
     return (
         <div className="flex justify-around">
-            <button onClick={() => setOpen(true)}>🍳</button>
+            <button onClick={() => setOpen(true)} id="header-search">🍳</button>
             <Modal isOpen={open} onOpenChange={setOpen} onClose={() => setResults([])}>
                 <ModalContent>
                     <ModalHeader>

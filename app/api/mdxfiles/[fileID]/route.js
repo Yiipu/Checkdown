@@ -39,7 +39,7 @@ export const PATCH = withApiAuthRequired(async function (req, { params: { fileID
     const res = new Response();
 
     const { user } = await getSession(req, res);
-    const userID = user.sub.split("|")[1];
+    const userID = user.sub;
 
     const searchParams = req.nextUrl.searchParams
     const isPublic = searchParams.get('is_public') == null ?
@@ -107,7 +107,7 @@ export const GET = async function (req, { params: { fileID } }) {
     const res = new Response();
 
     const session = await getSession(req, res);
-    const userID = session?.user.sub.split("|")[1] || null;
+    const userID = session?.user.sub || null;
 
     try {
         const [file,] = await pool.execute(

@@ -23,7 +23,7 @@ export function JoinWorkSpaceBtn() {
     return (
         <Popover>
             <PopoverTrigger>
-                <button>➕</button>
+                <button id="header-join">➕</button>
             </PopoverTrigger>
             <PopoverContent>
                 <div className="flex">

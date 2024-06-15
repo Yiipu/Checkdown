@@ -33,7 +33,7 @@ import { pool } from "/lib/pool";
 export const PUT = withApiAuthRequired(async function (req, { params: { workSpaceID } }) {
   const res = new Response();
   const { user } = await getSession(req, res);
-  const userID = user.sub.split("|")[1];
+  const userID = user.sub;
 
   // check if user is manager
   try {
@@ -96,7 +96,7 @@ export const PUT = withApiAuthRequired(async function (req, { params: { workSpac
 export const DELETE = withApiAuthRequired(async function (req, { params: { workSpaceID } }) {
   const res = new Response();
   const { user } = await getSession(req, res);
-  const userID = user.sub.split("|")[1];
+  const userID = user.sub;
 
   // check if user is manager
   try {
@@ -129,7 +129,7 @@ export const DELETE = withApiAuthRequired(async function (req, { params: { workS
 export const GET = withApiAuthRequired(async function (req, { params: { workSpaceID } }) {
   const res = new Response();
   const { user } = await getSession(req, res);
-  const userID = user.sub.split("|")[1];
+  const userID = user.sub;
 
   // check if user is manager
   try {

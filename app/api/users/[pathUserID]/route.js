@@ -35,11 +35,12 @@ import { pool } from '/lib/pool';
  */
 export const GET = withApiAuthRequired(async (req, { params: { pathUserID } }) => {
     const res = new Response();
+    const userID = decodeURIComponent(pathUserID);
 
     try {
         const [userInfo,] = await pool.execute(
             "SELECT nickname, picture, email FROM users WHERE sub = ?;",
-            [pathUserID]
+            [userID]
         );
         if (userInfo.length === 0) {
             return new Response(JSON.stringify({ error: "user not found" }), { status: 404 });

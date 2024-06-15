@@ -1,10 +1,10 @@
 "use client"
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-export default function Page() {
+export function List() {
     const loader = useRef(null);
     const root = useRef(null);
-    const [items, setItems] = React.useState([]);
+    const [items, setItems] = useState([]);
 
     useEffect(() => {
         const observer = new IntersectionObserver(

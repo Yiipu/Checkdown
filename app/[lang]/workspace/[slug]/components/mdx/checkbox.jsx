@@ -17,24 +17,13 @@ export function CheckBox({ name }) {
         checked = false
     };
 
-    useEffect(() => {
-        async function fetchUser() {
-            if (!progress[index]?.updated_by_user) return;
-            const res = await fetch(`/api/users/${progress[index]?.updated_by_user}`);
-            const data = await res.json();
-            console.log(data);
-            setNickName(data.email);
-        }
-        fetchUser();
-    }, [index, progress]);
-
     return (
         <Tooltip
             placement='left' showArrow
             content={
                 progress[index] ?
                     <div >
-                        <span> updated_by <Link href={`/${progress[index].updated_by_user}`}>{nickName}</Link></span>
+                        <span> updated_by <Link href={`/${progress[index].updated_by_user}`}>{progress[index].updated_by_user}</Link></span>
                         <br />
                         <span> at {progress[index].updated_at}</span>
                     </div>

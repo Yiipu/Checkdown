@@ -24,7 +24,7 @@ import { pool } from "/lib/pool";
 export const DELETE = withApiAuthRequired(async function (req, { params: { workSpaceID } }) {
     const res = new Response();
     const { user } = await getSession(req, res);
-    const userID = user.sub.split("|")[1];
+    const userID = user.sub;
 
     try {
         const [privilege,] = await pool.execute(
