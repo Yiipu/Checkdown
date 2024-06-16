@@ -6,7 +6,7 @@ import { Listbox, ListboxItem, ListboxSection } from "@nextui-org/listbox";
 import { useState } from "react";
 import { Avatar } from "@nextui-org/avatar";
 
-export function HeaderUser({ user }) {
+export function HeaderUser({ user, dictionary}) {
     const [isOpen, setIsOpen] = useState(false);
     return (
         <Popover
@@ -36,14 +36,14 @@ export function HeaderUser({ user }) {
                     <ListboxSection>
                         <ListboxItem>
                             <UILink>
-                                <Link href='/me'>my_profile</Link>
+                                <Link href='/me'>{dictionary.HeaderUser.profile}</Link>
                             </UILink>
                         </ListboxItem>
                     </ListboxSection>
                     <ListboxSection>
                         <ListboxItem>
                             <UILink color="danger">
-                                <Link href='/api/auth/logout'>logout</Link>
+                                <Link href='/api/auth/logout'>{dictionary.HeaderUser.logout}</Link>
                             </UILink>
                         </ListboxItem>
                     </ListboxSection>

@@ -9,7 +9,8 @@ import { Button } from "@nextui-org/button";
 import { Progress } from "@nextui-org/progress";
 import { canDrag } from "lib/client-utils";
 
-export function FileDropZone() {
+export function FileDropZone({ dictionary }) {
+
     const isDraggable = useMemo(() => canDrag(), []);
 
     const [isPublic, setIsPublic] = useState(false);
@@ -81,7 +82,7 @@ export function FileDropZone() {
                 //setFiles([]); setProgresses({}); setUploading(false) 
             }}>
                 <ModalContent>
-                    <ModalHeader>upload_file</ModalHeader>
+                        <ModalHeader>{dictionary.FileDrop.title}</ModalHeader>
                     <ModalBody>
                         {isDraggable ?
                             <div className=" border-dashed border-2">
@@ -89,9 +90,9 @@ export function FileDropZone() {
                                     <input {...getInputProps()} type="file" accept=".md, .mdx" />
                                     <div className="h-full flex justify-center items-center">
                                         {isDragActive ? (
-                                            <p>drop_zone_drag_active</p>
+                                            <p>{dictionary.FileDrop.drop_zone_drag_active}</p>
                                         ) : (
-                                            <p>drop_zone</p>
+                                            <p>{dictionary.FileDrop.drop_zone_drag_inactive}</p>
                                         )}
                                     </div>
                                 </div>
@@ -124,8 +125,8 @@ export function FileDropZone() {
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                        <Checkbox checked={isPublic} onChange={() => setIsPublic(!isPublic)} > public </Checkbox>
-                        <Button onClick={() => setUploading(true)} color="primary">Upload</Button>
+                            <Checkbox checked={isPublic} onChange={() => setIsPublic(!isPublic)} >{dictionary.FileDrop.public} </Checkbox>
+                            <Button onClick={() => setUploading(true)} color="primary">{dictionary.FileDrop.primary}</Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>

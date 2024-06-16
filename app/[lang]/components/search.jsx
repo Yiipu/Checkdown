@@ -4,7 +4,7 @@ import { Button } from "@nextui-org/button";
 import { useState } from "react";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@nextui-org/modal";
 
-export function Search() {
+export function Search({ dictionary }) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [results, setResults] = useState([]);
@@ -26,13 +26,13 @@ export function Search() {
                 <ModalContent>
                     <ModalHeader>
                         <Input autoFocus type="text"
-                            placeholder="search_for_files" value={query}
+                            placeholder={dictionary.Search.placeholder} value={query}
                             onValueChange={setQuery}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') search();
                                 if (e.key === 'Escape') setOpen(false);
                             }} />
-                        <Button onClick={search}>Q</Button>
+                        <Button onClick={search}>🍳</Button>
                     </ModalHeader>
                     <ModalBody>
                         <div>

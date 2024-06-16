@@ -3,6 +3,7 @@ import { UserProvider } from "@auth0/nextjs-auth0/client";
 import { NextUIProvider } from '@nextui-org/system'
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { LayoutHeader } from "./components/header"
+import { getDictionary } from "lib/dictionaries";
 
 export const metadata = {
   title: "Create Next App",
@@ -18,15 +19,16 @@ export async function generateStaticParams() {
 }
 
 export default async function RootLayout({ children, params: { lang } }) {
+  const dictionary = await getDictionary(lang);
   return (
     <html lang={lang}>
       <UserProvider>
         <body>
           <NextUIProvider>
             <NextThemesProvider attribute="class" defaultTheme="dark">
-              <LayoutHeader />
+              <LayoutHeader dictionary={dictionary} />
               <div className="w-full mx-auto max-w-[1024px] px-6">
-                  {children}
+                {children}
               </div>
             </NextThemesProvider>
           </NextUIProvider>

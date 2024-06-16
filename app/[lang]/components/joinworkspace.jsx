@@ -5,7 +5,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@nextui-org/popover";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 
-export function JoinWorkSpaceBtn() {
+export function JoinWorkSpaceBtn({dictionary}) {
     const [code, setCode] = useState();
     const router = useRouter()
 
@@ -27,8 +27,8 @@ export function JoinWorkSpaceBtn() {
             </PopoverTrigger>
             <PopoverContent>
                 <div className="flex">
-                    <Input value={code} onValueChange={setCode} placeholder="Code" />
-                    <Button onClick={joinWorkSpace} className=" ml-1">Join</Button>
+                    <Input value={code} onValueChange={setCode} placeholder={dictionary.JoinByCode.code} />
+                    <Button onClick={joinWorkSpace} className=" ml-1">{dictionary.JoinByCode.join}</Button>
                 </div>
             </PopoverContent>
         </Popover>

@@ -10,7 +10,7 @@ import { Search } from "./search";
 import { ThemeSwitcher } from "./darkmode";
 import { FileDropZone } from "./upload";
 
-export function LayoutHeader() {
+export function LayoutHeader({ dictionary }) {
     const { user, isLoading } = useUser();
     return (
         <Navbar isBordered>
@@ -21,15 +21,15 @@ export function LayoutHeader() {
             <NavbarContent justify="end">
                 <NavbarItem className="flex gap-2">
                     <ThemeSwitcher />
-                    <Search />
-                    <FileDropZone/>
-                    {user && <JoinWorkSpaceBtn />}
+                    <Search dictionary={dictionary}/>
+                    <FileDropZone dictionary={dictionary} />
+                    {user && <JoinWorkSpaceBtn dictionary={dictionary}/>}
                 </NavbarItem>
                 {/* user info */}
                 <NavbarItem className="h-[40px]">
                     {isLoading ?
                         <Skeleton className="w-[173px] h-[40px] rounded-full" />
-                        : user ? <HeaderUser user={user} />
+                        : user ? <HeaderUser user={user} dictionary={dictionary}/>
                             : <Button>
                                 <Link href="/api/auth/login">Login</Link>
                             </Button>}
