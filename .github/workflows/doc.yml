@@ -25,14 +25,16 @@ jobs:
         uses: k1low/setup-tbls@v1
       -
         name: Run tbls for generate database document
-        run: tbls doc -t mermaid
+        run: |
+          rm -rf $TBLS_DOC_PATH
+          tbls doc -t mermaid
       - 
         uses: actions/setup-node@v4
         with:
           node-version: 18
       -
         name: Install dependencies
-        run: yarn install next next-swagger-doc
+        run: yarn add next next-swagger-doc
       - 
         name: Generate Swagger document
         run: yarn next-swagger-doc-cli next-swagger-doc.json
