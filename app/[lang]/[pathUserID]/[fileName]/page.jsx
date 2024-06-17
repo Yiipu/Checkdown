@@ -14,7 +14,7 @@ export default async function Page({ params: { lang, pathUserID, fileName }, sea
     // get user session
     const session = await getSession();
     const { user } = session ? session : { user: null };
-    const isOwner = user ? (user.sub.split('|')[1] === pathUserID) : false;
+    const isOwner = user ? (user.sub === pathUserID) : false;
 
     // get file
     const file = await getFile(fileID, user?.sub.split('|')[1] || null);

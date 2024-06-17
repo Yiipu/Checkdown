@@ -32,7 +32,9 @@ export function FileDropZone({ dictionary }) {
     }, []);
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
-        accept: ".md, .mdx"
+        accept: {
+            "text/markdown": [".md", ".mdx"]
+        }
     });
 
     const uploadFile = useCallback((file) => new Promise((resolve, reject) => {
@@ -82,7 +84,7 @@ export function FileDropZone({ dictionary }) {
                 //setFiles([]); setProgresses({}); setUploading(false) 
             }}>
                 <ModalContent>
-                        <ModalHeader>{dictionary.FileDrop.title}</ModalHeader>
+                    <ModalHeader>{dictionary.FileDrop.title}</ModalHeader>
                     <ModalBody>
                         {isDraggable ?
                             <div className=" border-dashed border-2">
@@ -125,8 +127,8 @@ export function FileDropZone({ dictionary }) {
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                            <Checkbox checked={isPublic} onChange={() => setIsPublic(!isPublic)} >{dictionary.FileDrop.public} </Checkbox>
-                            <Button onClick={() => setUploading(true)} color="primary">{dictionary.FileDrop.primary}</Button>
+                        <Checkbox checked={isPublic} onChange={() => setIsPublic(!isPublic)} >{dictionary.FileDrop.public} </Checkbox>
+                        <Button onClick={() => setUploading(true)} color="primary">{dictionary.FileDrop.primary}</Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>

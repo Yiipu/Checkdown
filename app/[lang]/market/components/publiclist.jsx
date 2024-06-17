@@ -44,7 +44,7 @@ function FileCard({ file }) {
             <CardBody>
                 <h3>{file.name}</h3>
                 <p>{file.description}</p>
-                <p>{generateRandomDescription(255) }</p>
+                <p>{generateRandomDescription(255)}</p>
             </CardBody>
         </Card>
     )
@@ -76,8 +76,8 @@ export function FileList() {
         if (target.intersectionRatio <= 0) return;
 
         // load more content
-        offset.current += limit; // Changed from setOffset to offset.current
         getData().then((data) => setItems((prevItems) => [...prevItems, ...data]));
+        offset.current += limit; // Changed from setOffset to offset.current
     }, [getData, limit]); // Added limit to the dependency array
 
     useEffect(() => {

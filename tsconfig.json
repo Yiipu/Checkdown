@@ -28,7 +28,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "app/[lang]/about/api-doc/page.jsx", "app/[lang]/about/api-doc/react-swagger.jsx"  ],
   "exclude": [
     "node_modules"
   ],

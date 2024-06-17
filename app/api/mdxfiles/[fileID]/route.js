@@ -45,8 +45,8 @@ export const PATCH = withApiAuthRequired(async function (req, { params: { fileID
     const isPublic = searchParams.get('is_public') == null ?
         null : searchParams.get('is_public') == "true";
     const fileName = searchParams.get('name')
-    
-    if(isPublic === null && fileName === null) {
+
+    if (isPublic === null && fileName === null) {
         return new Response(null, { status: 400 }, res);
     }
 
@@ -121,3 +121,77 @@ export const GET = async function (req, { params: { fileID } }) {
         return new Response(null, { status: 500 }, { res });
     }
 };
+
+async function handleTransaction(pool, fn) {
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+        await fn(connection);
+        await connection.commit();
+    } catch (error) {
+        await connection.rollback();
+        console.error(error);
+    } finally {
+        connection.release();
+    }
+}
+
+const handleErrors = (fn) => async function (...args) {
+    try {
+        return await fn(...args);
+    } catch (error) {
+        console.error(error);
+        return new Response(null, { status: 500 }, res);
+    }
+}
+
+export const DELETE = withApiAuthRequired(handleErrors(async function (req, { params: { fileID } }) {
+    const res = new Response();
+
+    const { user } = await getSession(req, res);
+    const userID = user.sub;
+
+    const [privilege,] = await pool.execute(
+        "SELECT 1 FROM u_f_view WHERE f_id = ? AND u_id = ?;",
+        [fileID, userID]
+    );
+    if (privilege.length == 0) {
+        return new Response(null, { status: 403 }, res);
+    }
+
+    await handleTransaction(pool, async (connection) => {
+
+        const [wsIDs,] = await connection.execute(
+            "SELECT id FROM workspaces WHERE file_id = ?;",
+            [fileID]
+        );
+
+        const sqlIN = wsIDs.map(() => '?').join(',');
+        const wsIDList = wsIDs.map(ws => ws.id);
+
+        await connection.execute(
+            `DELETE FROM user_workspaces WHERE workspace_id IN (${sqlIN});`,
+            wsIDList
+        );
+        await connection.execute(
+            `DELETE FROM progresses WHERE workspace_id IN (${sqlIN});`,
+            wsIDList
+        );
+        await connection.execute(
+            `DELETE FROM workspaces WHERE id IN (${sqlIN});`,
+            wsIDList
+        );
+
+        await connection.execute(
+            "DELETE FROM user_files WHERE file_id = ?;",
+            [fileID]
+        );
+        await connection.execute(
+            "DELETE FROM mdx_files WHERE id = ?;",
+            [fileID]
+        );
+
+    });
+
+    return new Response(null, { status: 200 }, res);
+}));

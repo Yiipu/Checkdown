@@ -1,10 +1,9 @@
-import { processFileName } from "./utils";
 import { pool } from "./pool";
 
 const sqlDict = {
   insertFile: "INSERT INTO mdx_files (file, file_name) VALUES (?, ?);",
   insertUserFile:
-    "INSERT INTO user_files (user_sub, file_id, is_public) VALUES (?, ?, ?);"
+    "INSERT INTO user_files (user_sub, file_id, is_public) VALUES (?, ?, ?);",
 };
 
 export async function insertFile(
@@ -14,16 +13,14 @@ export async function insertFile(
   isPublic: Boolean
 ) {
   if (fileBuffer.byteLength > 16777215) {
-    return { error: "File size too large.", status: 400};
+    return { error: "File size too large.", status: 400 };
   }
   if (
     fileName.length > 255 ||
     !["mdx", "md"].includes(fileName.split(".")[1])
   ) {
-    return { error: "File type not accepted", status: 400};
+    return { error: "File type not accepted", status: 400 };
   }
-
-  fileName = processFileName(fileName);
 
   try {
     const connection = await pool.getConnection();

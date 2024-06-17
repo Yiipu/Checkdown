@@ -16,7 +16,7 @@ export function WorkSpaceList() {
 
     return (
         <ul>
-            {workSpace.map((ws, _) => {
+            {workSpace?.map((ws, _) => {
                 return (
                     <li key={_} className='flex'>
                         <Link href={`/workspace/${ws.id}`}>
