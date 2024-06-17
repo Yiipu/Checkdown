@@ -2,7 +2,10 @@
 name: Document
 
 on:
-  workflow_dispatch
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   doc:
@@ -11,7 +14,7 @@ jobs:
       name: development
     env:
       TBLS_DSN: "mysql://${{secrets.DB_USER}}:${{secrets.DB_PASSWORD}}@${{secrets.DB_HOST}}:${{secrets.DB_PORT}}/${{secrets.DB_DATABASE}}"
-      TBLS_DOC_PATH: "doc/schema"
+      TBLS_DOC_PATH: "doc/database-schema"
     steps:
       -
         name: Checkout
@@ -23,16 +26,26 @@ jobs:
       -
         name: Run tbls for generate database document
         run: tbls doc -t mermaid
-      # -
-      #   name: Diff database and document
-      #   run: tbls diff -t mermaid
+      - 
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
       -
-        name: Commit doc/schema
+        name: Install dependencies
+        run: yarn install next next-swagger-doc
+      - 
+        name: Generate Swagger document
+        run: yarn next-swagger-doc-cli next-swagger-doc.json
+      -
+        name: Commit docs
         run: |
-          date > generated.txt
-          # Note: the following account information will not work on GHES
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add doc/schema
-          git commit -m ":pencil: Update database document"
-          git push
+          DIFF=$(git diff --name-only)
+          if [ "$DIFF" != "" ]
+          then
+            date > generated.txt
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add .
+            git commit -m ":pencil: Update document"
+            git push
+          fi
