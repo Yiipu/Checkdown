@@ -69,8 +69,8 @@ erDiagram
   int id PK
   timestamp created_at
   int file_id FK
-  timestamp code_expire_at
   varchar_20_ invite_code
+  timestamp code_expire_at
 }
 ```
 

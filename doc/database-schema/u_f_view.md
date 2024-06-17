@@ -8,7 +8,7 @@ VIEW
 <summary><strong>Table Definition</strong></summary>
 
 ```sql
-CREATE VIEW u_f_view AS (select `u`.`user_sub` AS `u_id`,`m`.`file` AS `f`,`m`.`file_name` AS `f_name`,`m`.`id` AS `f_id`,`u`.`is_public` AS `is_public` from (`checkdown_db`.`user_files` `u` join `checkdown_db`.`mdx_files` `m` on((`u`.`file_id` = `m`.`id`))))
+CREATE VIEW u_f_view AS (select `u`.`user_sub` AS `u_id`,`m`.`file` AS `f`,`m`.`file_name` AS `f_name`,`m`.`description` AS `description`,`m`.`id` AS `f_id`,`u`.`is_public` AS `is_public` from (`checkdown_db`.`user_files` `u` join `checkdown_db`.`mdx_files` `m` on((`u`.`file_id` = `m`.`id`))))
 ```
 
 </details>
@@ -20,6 +20,7 @@ CREATE VIEW u_f_view AS (select `u`.`user_sub` AS `u_id`,`m`.`file` AS `f`,`m`.`
 | u_id | varchar(255) |  | false |  |  |  |
 | f | mediumtext |  | false |  |  |  |
 | f_name | varchar(255) |  | false |  |  |  |
+| description | varchar(255) |  | true |  |  |  |
 | f_id | int | 0 | false |  |  |  |
 | is_public | tinyint(1) | 0 | true |  |  |  |
 
@@ -28,7 +29,7 @@ CREATE VIEW u_f_view AS (select `u`.`user_sub` AS `u_id`,`m`.`file` AS `f`,`m`.`
 | Name | Columns | Comment | Type |
 | ---- | ------- | ------- | ---- |
 | [user_files](user_files.md) | 3 |  | BASE TABLE |
-| [mdx_files](mdx_files.md) | 5 |  | BASE TABLE |
+| [mdx_files](mdx_files.md) | 7 |  | BASE TABLE |
 
 ## Relations
 
@@ -40,6 +41,7 @@ erDiagram
   varchar_255_ u_id
   mediumtext f
   varchar_255_ f_name
+  varchar_255_ description
   int f_id
   tinyint_1_ is_public
 }

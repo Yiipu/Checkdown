@@ -68,6 +68,8 @@ erDiagram
 "mdx_files" {
   int id PK
   mediumtext file
+  int popularity
+  varchar_255_ description
   timestamp created_at
   timestamp updated_at
   varchar_255_ file_name

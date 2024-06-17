@@ -10,8 +10,8 @@ CREATE TABLE `workspaces` (
   `id` int NOT NULL AUTO_INCREMENT,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `file_id` int NOT NULL,
-  `code_expire_at` timestamp NULL DEFAULT NULL,
   `invite_code` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `code_expire_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `invite_code` (`invite_code`),
   KEY `file_id` (`file_id`),
@@ -28,8 +28,8 @@ CREATE TABLE `workspaces` (
 | id | int |  | false | auto_increment | [user_workspaces](user_workspaces.md) |  |  |
 | created_at | timestamp | CURRENT_TIMESTAMP | true | DEFAULT_GENERATED |  |  |  |
 | file_id | int |  | false |  |  | [mdx_files](mdx_files.md) |  |
-| code_expire_at | timestamp |  | true |  |  |  |  |
 | invite_code | varchar(20) |  | true |  |  |  |  |
+| code_expire_at | timestamp |  | true |  |  |  |  |
 
 ## Constraints
 
@@ -59,8 +59,8 @@ erDiagram
   int id PK
   timestamp created_at
   int file_id FK
-  timestamp code_expire_at
   varchar_20_ invite_code
+  timestamp code_expire_at
 }
 "user_workspaces" {
   varchar_255_ user_sub PK
@@ -70,6 +70,8 @@ erDiagram
 "mdx_files" {
   int id PK
   mediumtext file
+  int popularity
+  varchar_255_ description
   timestamp created_at
   timestamp updated_at
   varchar_255_ file_name

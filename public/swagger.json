@@ -304,6 +304,52 @@
         }
       }
     },
+    "/api/user/{id}": {
+      "get": {
+        "summary": "Retrieve a user's information",
+        "description": "Retrieve a user's nickname, picture, and email by their user ID.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Numeric ID of the user to retrieve.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nickname": {
+                      "type": "string"
+                    },
+                    "picture": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Database error"
+          }
+        }
+      }
+    },
     "/api/workspaces/{workSpaceID}/invitecode": {
       "put": {
         "description": "Update a workspace's invite code",
@@ -392,7 +438,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
             },
             "description": "The ID of the workspace to delete"
           }

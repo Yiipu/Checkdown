@@ -4,9 +4,9 @@
 
 | Name | Columns | Comment | Type |
 | ---- | ------- | ------- | ---- |
-| [mdx_files](mdx_files.md) | 5 |  | BASE TABLE |
+| [mdx_files](mdx_files.md) | 7 |  | BASE TABLE |
 | [progresses](progresses.md) | 5 |  | BASE TABLE |
-| [u_f_view](u_f_view.md) | 5 | VIEW | VIEW |
+| [u_f_view](u_f_view.md) | 6 | VIEW | VIEW |
 | [user_files](user_files.md) | 3 |  | BASE TABLE |
 | [user_workspaces](user_workspaces.md) | 3 |  | BASE TABLE |
 | [users](users.md) | 8 |  | BASE TABLE |
@@ -28,6 +28,8 @@ erDiagram
 "mdx_files" {
   int id PK
   mediumtext file
+  int popularity
+  varchar_255_ description
   timestamp created_at
   timestamp updated_at
   varchar_255_ file_name
@@ -43,6 +45,7 @@ erDiagram
   varchar_255_ u_id
   mediumtext f
   varchar_255_ f_name
+  varchar_255_ description
   int f_id
   tinyint_1_ is_public
 }
@@ -78,8 +81,8 @@ erDiagram
   int id PK
   timestamp created_at
   int file_id FK
-  timestamp code_expire_at
   varchar_20_ invite_code
+  timestamp code_expire_at
 }
 ```
 

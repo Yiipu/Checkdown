@@ -49,6 +49,7 @@ CREATE TABLE `progresses` (
 | Name | Definition |
 | ---- | ---------- |
 | check_user_access | CREATE TRIGGER check_user_access BEFORE INSERT ON progresses<br>FOR EACH ROW<br>BEGIN<br>    DECLARE user_access INT;<br>    SELECT COUNT(*) INTO user_access<br>    FROM user_workspaces<br>    WHERE user_sub = NEW.updated_by_user AND workspace_id = NEW.workspace_id;<br>    IF user_access = 0 THEN<br>        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'User does not have access to this workspace';<br>    END IF;<br>END |
+| check_user_access_update | CREATE TRIGGER check_user_access_update BEFORE UPDATE ON progresses<br>FOR EACH ROW<br>BEGIN<br>    DECLARE user_access INT;<br>    SELECT COUNT(*) INTO user_access<br>    FROM user_workspaces<br>    WHERE user_sub = NEW.updated_by_user AND workspace_id = NEW.workspace_id;<br>    IF user_access = 0 THEN<br>        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'User does not have access to this workspace';<br>    END IF;<br>END |
 
 ## Relations
 

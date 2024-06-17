@@ -9,10 +9,14 @@
 CREATE TABLE `mdx_files` (
   `id` int NOT NULL AUTO_INCREMENT,
   `file` mediumtext COLLATE utf8mb4_general_ci NOT NULL,
+  `popularity` int DEFAULT '0',
+  `description` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `file_name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  FULLTEXT KEY `file_name` (`file_name`,`description`),
+  FULLTEXT KEY `file_name_2` (`file_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 ```
 
@@ -24,6 +28,8 @@ CREATE TABLE `mdx_files` (
 | ---- | ---- | ------- | -------- | ---------------- | -------- | ------- | ------- |
 | id | int |  | false | auto_increment | [user_files](user_files.md) [workspaces](workspaces.md) |  |  |
 | file | mediumtext |  | false |  |  |  |  |
+| popularity | int | 0 | true |  |  |  |  |
+| description | varchar(255) |  | true |  |  |  |  |
 | created_at | timestamp | CURRENT_TIMESTAMP | true | DEFAULT_GENERATED |  |  |  |
 | updated_at | timestamp | CURRENT_TIMESTAMP | true | DEFAULT_GENERATED on update CURRENT_TIMESTAMP |  |  |  |
 | file_name | varchar(255) |  | false |  |  |  |  |
@@ -38,6 +44,8 @@ CREATE TABLE `mdx_files` (
 
 | Name | Definition |
 | ---- | ---------- |
+| file_name | KEY file_name (file_name, description) USING FULLTEXT |
+| file_name_2 | KEY file_name_2 (file_name) USING FULLTEXT |
 | PRIMARY | PRIMARY KEY (id) USING BTREE |
 
 ## Relations
@@ -51,6 +59,8 @@ erDiagram
 "mdx_files" {
   int id PK
   mediumtext file
+  int popularity
+  varchar_255_ description
   timestamp created_at
   timestamp updated_at
   varchar_255_ file_name
@@ -64,8 +74,8 @@ erDiagram
   int id PK
   timestamp created_at
   int file_id FK
-  timestamp code_expire_at
   varchar_20_ invite_code
+  timestamp code_expire_at
 }
 ```
 

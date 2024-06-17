@@ -30,7 +30,7 @@ CREATE VIEW w_uw_view AS (select `w`.`id` AS `id`,`w`.`created_at` AS `created`,
 | ---- | ------- | ------- | ---- |
 | [workspaces](workspaces.md) | 5 |  | BASE TABLE |
 | [user_workspaces](user_workspaces.md) | 3 |  | BASE TABLE |
-| [mdx_files](mdx_files.md) | 5 |  | BASE TABLE |
+| [mdx_files](mdx_files.md) | 7 |  | BASE TABLE |
 
 ## Relations
 
