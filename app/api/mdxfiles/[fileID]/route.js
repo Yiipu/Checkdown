@@ -136,16 +136,7 @@ async function handleTransaction(pool, fn) {
     }
 }
 
-const handleErrors = (fn) => async function (...args) {
-    try {
-        return await fn(...args);
-    } catch (error) {
-        console.error(error);
-        return new Response(null, { status: 500 }, res);
-    }
-}
-
-export const DELETE = withApiAuthRequired(handleErrors(async function (req, { params: { fileID } }) {
+export const DELETE = withApiAuthRequired(async function (req, { params: { fileID } }) {
     const res = new Response();
 
     const { user } = await getSession(req, res);
@@ -191,7 +182,10 @@ export const DELETE = withApiAuthRequired(handleErrors(async function (req, { pa
             [fileID]
         );
 
+    }).catch((error) => {
+        console.error(error);
+        return new Response(null, { status: 500 }, res);
     });
 
     return new Response(null, { status: 200 }, res);
-}));
+});
