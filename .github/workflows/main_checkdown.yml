@@ -23,21 +23,21 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: https://ghcr.io/
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        username: ${{ secrets.AzureAppService_ContainerUsername_f5c3d5c621be4f148a364979a7e1bc54 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_467a3557969b4032b59883abf3297b9f }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: ghcr.io/${{ secrets.AzureAppService_ContainerUsername_34eb4dbc3d954bef844ed8a947b26af0 }}/checkdown/next:${{ github.sha }}
+        tags: ghcr.io/${{ secrets.AzureAppService_ContainerUsername_f5c3d5c621be4f148a364979a7e1bc54 }}/checkdown:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: production
+      name: 'production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
@@ -47,5 +47,5 @@ jobs:
       with:
         app-name: 'checkdown'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_3b991f3e97f743d28cfee93b0e8ae4d4 }}
-        images: 'ghcr.io/${{ secrets.AzureAppService_ContainerUsername_34eb4dbc3d954bef844ed8a947b26af0 }}/checkdown/next:${{ github.sha }}'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_3e75be0db5b5437abedebe808edc4974 }}
+        images: 'ghcr.io/${{ secrets.AzureAppService_ContainerUsername_f5c3d5c621be4f148a364979a7e1bc54 }}/checkdown:${{ github.sha }}'
