@@ -17,34 +17,24 @@ jobs:
       TBLS_DOC_PATH: "doc/database-schema"
     steps:
       -
-        name: Checkout
+        name: Checkout Wiki
         uses: actions/checkout@v4
         with:
+          repository: Yiipu/checkdown.wiki
           token: ${{secrets.PAT}}
       -
         uses: k1low/setup-tbls@v1
       -
-        name: Run tbls for generate database document
+        name: Run tbls to generate database document
         run: |
           rm -rf $TBLS_DOC_PATH
           tbls doc -t mermaid
-      - 
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
       -
-        name: Install dependencies
-        run: yarn add next next-swagger-doc
-      - 
-        name: Generate Swagger document
-        run: yarn next-swagger-doc-cli next-swagger-doc.json
-      -
-        name: Commit docs
+        name: Push to wiki
         run: |
           DIFF=$(git diff --name-only)
           if [ "$DIFF" != "" ]
           then
-            date > $TBLS_DOC_PATH/generated.txt
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add .
