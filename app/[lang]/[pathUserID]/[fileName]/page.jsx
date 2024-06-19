@@ -19,7 +19,10 @@ export default async function Page({ params: { lang, pathUserID, fileName }, sea
     // get file
     const file = await getFile(fileID, user?.sub.split('|')[1] || null);
 
-    // TODO: return 404 when file not found
+    // return 404 when file not found
+    if (!file) {
+        return <div>File not found</div>
+    }
 
     return (
         <main>
