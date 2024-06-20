@@ -43,24 +43,16 @@ export const PATCH = withApiAuthRequired(async function (req, { params: { fileID
 
     const searchParams = req.nextUrl.searchParams
     const isPublic = searchParams.get('is_public') == null ?
-        null : searchParams.get('is_public') == "true";
-    const fileName = searchParams.get('name')
+        null : searchParams.get('is_public') == "true" || 1;
 
-    if (isPublic === null && fileName === null) {
+    if (isPublic === null) {
         return new Response(null, { status: 400 }, res);
     }
 
     try {
-        const [privilege,] = await pool.execute(
-            "SELECT privilege FROM u_f_view WHERE f_id = ? AND u_id = ?;",
-            [fileID, userID]
-        );
-        if (privilege[0].privilege !== "owner") {
-            return new Response(null, { status: 403 }, res);
-        }
         await pool.execute(
-            "UPDATE u_f_view SET f_name = IFNULL(?, f_name), is_public = IFNULL(?, is_public) WHERE f_id = ?;",
-            [fileName, isPublic, fileID]
+            "UPDATE u_f_view SET is_public = IFNULL(?, is_public) WHERE f_id = ?;",
+            [isPublic, fileID]
         );
         return new Response(null, { status: 200 }, res);
     } catch (err) {
@@ -160,18 +152,20 @@ export const DELETE = withApiAuthRequired(async function (req, { params: { fileI
         const sqlIN = wsIDs.map(() => '?').join(',');
         const wsIDList = wsIDs.map(ws => ws.id);
 
-        await connection.execute(
-            `DELETE FROM user_workspaces WHERE workspace_id IN (${sqlIN});`,
-            wsIDList
-        );
-        await connection.execute(
-            `DELETE FROM progresses WHERE workspace_id IN (${sqlIN});`,
-            wsIDList
-        );
-        await connection.execute(
-            `DELETE FROM workspaces WHERE id IN (${sqlIN});`,
-            wsIDList
-        );
+        if (wsIDList.length != 0) {
+            await connection.execute(
+                `DELETE FROM user_workspaces WHERE workspace_id IN (${sqlIN});`,
+                wsIDList
+            );
+            await connection.execute(
+                `DELETE FROM progresses WHERE workspace_id IN (${sqlIN});`,
+                wsIDList
+            );
+            await connection.execute(
+                `DELETE FROM workspaces WHERE id IN (${sqlIN});`,
+                wsIDList
+            );
+        }
 
         await connection.execute(
             "DELETE FROM user_files WHERE file_id = ?;",

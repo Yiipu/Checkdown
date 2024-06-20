@@ -43,7 +43,7 @@ export const POST = withApiAuthRequired(async function (req) {
     const userID = user.sub;
 
     const searchParams = req.nextUrl.searchParams;
-    const isPublic = searchParams.get('is_public') == 1;
+    const isPublic = searchParams.get('is_public') == "true" || 1;
 
     const formData = await req.formData();
     const file = formData.get("file");
@@ -137,7 +137,7 @@ export const GET = (async function (req) {
     * else return only public files
     */
     const isPublic = searchParams.get('is_public') == null ?
-        (isOwner ? null : true) : searchParams.get('is_public') == "true";
+        (isOwner ? null : true) : searchParams.get('is_public') == "true" || 1;
 
     if (!isOwner && isPublic === false) {
         return new Response(null, { status: 403 }, res);
