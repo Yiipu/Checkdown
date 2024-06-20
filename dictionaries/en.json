@@ -1,4 +1,8 @@
 {
+  "MetaData": {
+    "description": "Checkdown is a simple markdown previewer that allows you to work on a checklist with your team in real-time.",
+    "keywords": "markdown, previewer, checklist, team, real-time, collaboration, workspace, invite, code, share, upload, search, source code, github, react, socket, open source"
+  },
   "HomePage": {
     "description": " is a simple markdown previewer that allows you to work on a checklist with your team in real-time.",
     "uses": "It&apos;s built with ",
