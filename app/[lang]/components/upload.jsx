@@ -51,7 +51,7 @@ export function FileDropZone({ dictionary }) {
             }
         };
         xhr.onload = () => {
-            if (xhr.status !== 200) {
+            if (xhr.status !== 201) {
                 setProgresses((prev) => ({ ...prev, [file.name]: { error: xhr.statusText } }));
                 reject(`Error uploading file ${file.name}: ${xhr.statusText}`);
             } else {
@@ -81,7 +81,7 @@ export function FileDropZone({ dictionary }) {
         <div className="flex justify-around">
             <button onClick={() => { setOpen(true) }} id="header-upload">🎈</button>
             <Modal isOpen={open} onOpenChange={setOpen} onClose={() => {
-                //setFiles([]); setProgresses({}); setUploading(false) 
+                setFiles([]); setProgresses({}); setUploading(false) 
             }}>
                 <ModalContent>
                     <ModalHeader>{dictionary.FileDrop.title}</ModalHeader>
