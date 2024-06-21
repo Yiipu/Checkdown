@@ -2,6 +2,115 @@ import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { insertFile } from "lib/database";
 import { pool } from 'lib/pool'
 
+import { EventEmitter } from "events";
+import { setTimeout } from "timers";
+const emitter = new EventEmitter();
+
+emitter.on("fileSummarized", async (fileID, operationLocation) => {
+    fetch(operationLocation,
+        {
+            method: 'GET',
+            headers: {
+                'Ocp-Apim-Subscription-Key': process.env.AZURE_LANGUAGE_KEY
+            }
+        })
+        .then(res => {
+            if (!res.ok) {
+                setTimeout(() => {
+                    emitter.emit('fileSummarized', fileID, operationLocation);
+                }, 10000)
+                return;
+            }
+            return res.json();
+        })
+        .then(async data => {
+            if (data.status == "running") {
+                setTimeout(() => {
+                    emitter.emit('fileSummarized', fileID, operationLocation);
+                }, 10000)
+                return;
+            }
+            data.tasks.items.map(async (item) => {
+                if (item.status == "failed") {
+                    console.error(item.results.errors);
+                } else if (item.status == "succeeded") {
+                    const query = "UPDATE mdx_files SET description = ? WHERE id = ?;";
+                    var text = item.results.documents[0].summaries[0].text;
+                    if (text.length > 1024) {
+                        text = text.substring(0, 1024);
+                    } else if (text.length == 0) {
+                        text = "No summary available";
+                        setTimeout(() => {
+                            emitter.emit('fileSummarized', fileID, operationLocation);
+                        }, 10000)
+                    }
+                    const params = [text, fileID];
+                    await pool.execute(query, params);
+                } else {
+                    setTimeout(() => {
+                        emitter.emit('fileSummarized', fileID, operationLocation);
+                    }, 10000)
+                }
+            })
+        })
+        .catch(err => {
+            console.error('get result error:' + err, "retrying in 10 seconds");
+            setTimeout(() => {
+                emitter.emit('fileSummarized', fileID, operationLocation);
+            }, 10000)
+        });
+});
+
+emitter.on('fileUploaded', async (fileBuffer, fileID, fileName) => {
+    fetch(process.env.AZURE_LANGUAGE_ENDPOINT + "/language/analyze-text/jobs?api-version=2023-04-01",
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Ocp-Apim-Subscription-Key': process.env.AZURE_LANGUAGE_KEY
+            },
+            body: JSON.stringify(
+                {
+                    "displayName": "Text Abstractive Summarization Task Example",
+                    "analysisInput": {
+                        "documents": [
+                            {
+                                "id": "1",
+                                "language": "en",
+                                "text": Buffer.from(fileBuffer).toString()
+                            }
+                        ]
+                    },
+                    "tasks": [
+                        {
+                            "kind": "AbstractiveSummarization",
+                            "taskName": `Summarize ${fileName}`,
+                            "parameters": {
+                                "summaryLength": "short"
+                            }
+                        }
+                    ]
+                }
+            )
+        })
+        .then(res => {
+            if (!res.ok) {
+                setTimeout(() => {
+                    emitter.emit("fileUploaded", fileBuffer, fileID, fileName);
+                }, 10000)
+                return;
+            };
+            const operationLocation = res.headers.get("operation-location");
+            emitter.emit('fileSummarized', fileID, operationLocation);
+        })
+        .catch(err => {
+            console.error('add lang task error:' + err, "retrying in 10 seconds");
+            setTimeout(() => {
+                emitter.emit(fileBuffer, fileID, fileName);
+            }, 10000)
+        });
+});
+
 /**
  * @swagger
  * /api/mdxfiles:
@@ -51,6 +160,8 @@ export const POST = withApiAuthRequired(async function (req) {
 
     const dbRes = await insertFile(fileBuffer, file.name, userID, isPublic);
     const status = dbRes.error ? dbRes.status : 201;
+
+    emitter.emit('fileUploaded', fileBuffer, dbRes.fileID, file.name);
 
     return new Response(JSON.stringify(dbRes), { status: status }, { res });
 });
