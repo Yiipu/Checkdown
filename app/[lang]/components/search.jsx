@@ -1,45 +1,60 @@
 "use client"
 import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@nextui-org/modal";
+import Link from "next/link";
 
 export function Search({ dictionary }) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
-    const [results, setResults] = useState([]);
+    const [fileResults, setFileResults] = useState([]);
 
-    async function search() {
+    const search = useCallback(async () => {
         const res = await fetch(`/api/mdxfiles?file_name=${query}`);
         if (!res.ok) {
             console.error(res.statusText);
             return;
         }
         const data = await res.json();
-        setResults(data.data);
-    }
+        setFileResults(data.data);
+    }, [query]);
 
     return (
         <div className="flex justify-around">
             <button onClick={() => setOpen(true)} id="header-search">🍳</button>
-            <Modal isOpen={open} onOpenChange={setOpen} onClose={() => setResults([])}>
+            <Modal isOpen={open} onOpenChange={setOpen}
+                onClose={() => {
+                    setFileResults([]);
+                    setQuery("");
+                }}
+                classNames={{
+                    body: "flex-col-reverse md:flex-col gap-0",
+                }}
+                hideCloseButton>
                 <ModalContent>
-                    <ModalHeader>
-                        <Input autoFocus type="text"
-                            placeholder={dictionary.Search.placeholder} value={query}
-                            onValueChange={setQuery}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') search();
-                                if (e.key === 'Escape') setOpen(false);
-                            }} />
-                        <Button onClick={search}>🍳</Button>
-                    </ModalHeader>
                     <ModalBody>
+                        <div className="flex">
+                            <Input autoFocus type="text"
+                                placeholder={dictionary.Search.placeholder} value={query}
+                                onValueChange={setQuery}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') search();
+                                    if (e.key === 'Escape') setOpen(false);
+                                }}
+                                classNames={{
+                                    base: "mr-2",
+                                }} />
+                            <Button onClick={search} isIconOnly>🍳</Button>
+                        </div>
+
                         <div>
-                            {results.map((result) => {
+                            {fileResults.map((result) => {
                                 return (
-                                    <div key={result.id}>
-                                        <div>{result.name}</div>
+                                    <div key={result.id} className="px-3 py-2 bg-default-200 my-2 rounded">
+                                        <Link href={`/${result.user_id}/${result.name}?file_id=${result.id}`} className=" underline text-primary">
+                                            <div>{result.user_id} / <br className="md:hidden" />{result.name}</div>
+                                        </Link>
                                     </div>
                                 );
                             })}

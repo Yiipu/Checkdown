@@ -1,4 +1,4 @@
-import { withApiAuthRequired } from '@auth0/nextjs-auth0';
+// import { withApiAuthRequired } from '@auth0/nextjs-auth0';
 import { pool } from '/lib/pool';
 
 /**
@@ -33,13 +33,13 @@ import { pool } from '/lib/pool';
  *       500:
  *         description: Database error
  */
-export const GET = withApiAuthRequired(async (req, { params: { pathUserID } }) => {
+export const GET = async (req, { params: { pathUserID } }) => {
     const res = new Response();
     const userID = decodeURIComponent(pathUserID);
 
     try {
         const [userInfo,] = await pool.execute(
-            "SELECT nickname, picture, email FROM users WHERE sub = ?;",
+            "SELECT nickname, picture, email, sub AS id FROM users WHERE sub = ?;",
             [userID]
         );
         if (userInfo.length === 0) {
@@ -50,4 +50,4 @@ export const GET = withApiAuthRequired(async (req, { params: { pathUserID } }) =
         console.error(error);
         return new Response(JSON.stringify({ error: "database error" }), { status: 500 });
     }
-});
+};

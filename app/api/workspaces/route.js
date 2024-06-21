@@ -108,7 +108,7 @@ export const GET = withApiAuthRequired(async function (req) {
     const fileID = searchParams.get('file_id');
 
     try {
-        let query = "SELECT id, created AS time_created, privilege, f_name AS file_name FROM w_uw_view ";
+        let query = "SELECT id, created AS time_created, privilege, f_name AS file_name, f_id AS file_id FROM w_uw_view ";
         let params = [];
 
         if (fileID !== null) {

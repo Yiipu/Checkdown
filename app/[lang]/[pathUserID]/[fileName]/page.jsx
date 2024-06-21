@@ -17,7 +17,7 @@ export default async function Page({ params: { lang, pathUserID, fileName }, sea
     const isOwner = user ? (user.sub === pathUserID) : false;
 
     // get file
-    const file = await getFile(fileID, user?.sub.split('|')[1] || null);
+    const file = await getFile(fileID, user?.sub || null);
 
     // return 404 when file not found
     if (!file) {
