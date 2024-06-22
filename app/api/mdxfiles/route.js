@@ -7,6 +7,7 @@ import { setTimeout } from "timers";
 const emitter = new EventEmitter();
 
 emitter.on("fileSummarized", async (fileID, operationLocation) => {
+    console.log(`Starting to summarize file with ID: ${fileID}`);
     fetch(operationLocation,
         {
             method: 'GET',
@@ -16,6 +17,7 @@ emitter.on("fileSummarized", async (fileID, operationLocation) => {
         })
         .then(res => {
             if (!res.ok) {
+                console.log(`Retrying summarization for file ID: ${fileID} due to non-ok response.`);
                 setTimeout(() => {
                     emitter.emit('fileSummarized', fileID, operationLocation);
                 }, 10000)
@@ -24,29 +26,39 @@ emitter.on("fileSummarized", async (fileID, operationLocation) => {
             return res.json();
         })
         .then(async data => {
-            if (data.status == "running") {
+            if (data.status == "error"){
+                console.error(`Error getting result for file ID: ${fileID}: ${data.message}`);
+                pool.execute("UPDATE mdx_files SET description = ? WHERE id = ?;", ["Summarization failed. Retry by re-upload.",file]).catch(err => console.error(err));
+                return;
+            } else if (data.status !== "succeeded") {
+                console.log(`Summarization for file ID: ${fileID} is ${data.status}. Retrying...`);
                 setTimeout(() => {
                     emitter.emit('fileSummarized', fileID, operationLocation);
                 }, 10000)
                 return;
             }
+            // actually only one item in the task array. 
+            // API document https://learn.microsoft.com/rest/api/language/analyze-text-job-status/analyze-text-job-status?view=rest-language-2023-04-01&tabs=HTTP#abstractivesummarizationlroresult
             data.tasks.items.map(async (item) => {
                 if (item.status == "failed") {
-                    console.error(item.results.errors);
+                    console.error(`Summarization failed for file ID: ${fileID}`, item.results.errors);
                 } else if (item.status == "succeeded") {
+                    console.log(`Summarization succeeded for file ID: ${fileID}. Updating database.`);
                     const query = "UPDATE mdx_files SET description = ? WHERE id = ?;";
                     var text = item.results.documents[0].summaries[0].text;
                     if (text.length > 1024) {
                         text = text.substring(0, 1024);
                     } else if (text.length == 0) {
                         text = "No summary available";
+                        console.log(`No summary available for file ID: ${fileID}. Retrying...`);
                         setTimeout(() => {
                             emitter.emit('fileSummarized', fileID, operationLocation);
                         }, 10000)
                     }
                     const params = [text, fileID];
-                    await pool.execute(query, params);
+                    pool.execute(query, params).catch(err => console.error(err));
                 } else {
+                    console.log(`Status unknown for file ID: ${fileID}. Retrying...`);
                     setTimeout(() => {
                         emitter.emit('fileSummarized', fileID, operationLocation);
                     }, 10000)
@@ -54,7 +66,7 @@ emitter.on("fileSummarized", async (fileID, operationLocation) => {
             })
         })
         .catch(err => {
-            console.error('get result error:' + err, "retrying in 10 seconds");
+            console.error(`Error getting result for file ID: ${fileID}: ${err}. Retrying in 10 seconds.`);
             setTimeout(() => {
                 emitter.emit('fileSummarized', fileID, operationLocation);
             }, 10000)
@@ -62,6 +74,7 @@ emitter.on("fileSummarized", async (fileID, operationLocation) => {
 });
 
 emitter.on('fileUploaded', async (fileBuffer, fileID, fileName) => {
+    console.log(`Starting upload for file: ${fileName} with ID: ${fileID}`);
     fetch(process.env.AZURE_LANGUAGE_ENDPOINT + "/language/analyze-text/jobs?api-version=2023-04-01",
         {
             method: 'POST',
@@ -95,18 +108,20 @@ emitter.on('fileUploaded', async (fileBuffer, fileID, fileName) => {
         })
         .then(res => {
             if (!res.ok) {
+                console.log(`Retrying upload for file: ${fileName} with ID: ${fileID} due to non-ok response.`);
                 setTimeout(() => {
                     emitter.emit("fileUploaded", fileBuffer, fileID, fileName);
                 }, 10000)
                 return;
             };
             const operationLocation = res.headers.get("operation-location");
+            console.log(`Upload succeeded for file: ${fileName} with ID: ${fileID}. Operation location: ${operationLocation}`);
             emitter.emit('fileSummarized', fileID, operationLocation);
         })
         .catch(err => {
-            console.error('add lang task error:' + err, "retrying in 10 seconds");
+            console.error(`Error adding language task for file: ${fileName} with ID: ${fileID}: ${err}. Retrying in 10 seconds.`);
             setTimeout(() => {
-                emitter.emit(fileBuffer, fileID, fileName);
+                emitter.emit("fileUploaded", fileBuffer, fileID, fileName);
             }, 10000)
         });
 });
@@ -161,7 +176,11 @@ export const POST = withApiAuthRequired(async function (req) {
     const dbRes = await insertFile(fileBuffer, file.name, userID, isPublic);
     const status = dbRes.error ? dbRes.status : 201;
 
-    emitter.emit('fileUploaded', fileBuffer, dbRes.fileID, file.name);
+    if (status == 201) {
+        setTimeout(() => {
+            emitter.emit('fileUploaded', fileBuffer, dbRes.fileID, file.name);
+        }, Math.floor(Math.random() * 10000)); // random time span to avoid 429 error from Azure
+    }
 
     return new Response(JSON.stringify(dbRes), { status: status }, { res });
 });
