@@ -28,3 +28,10 @@
 | [![Azure](https://img.shields.io/badge/azure-%230072C6.svg?style=for-the-badge&logo=microsoftazure&logoColor=white)](https://azure.com) | Hosting services |
 | [![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)](https://docs.github.com/actions) | Automation of CI/CD processes |
 
+
+## Resources Used for Sample
+
+- [Front End Checklist.md](https://github.com/thedaviddias/Front-End-Checklist)
+- [Frontend Checklist for Websites.md](https://github.com/drublic/checklist)
+- [Designing iOS architecture Checklist.md](https://github.com/BohdanOrlov/architecture-checklist)
+- [API security checklist.md](https://github.com/shieldfy/API-Security-Checklist)

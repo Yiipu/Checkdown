@@ -131,8 +131,8 @@ export function ManageBoard({ pathUserID }) {
     }, [])
 
     return (
-        <div className='grid gap-4 md:grid-cols-2'>
-            <div className=''>
+        <div className='flex flex-col md:flex-row'>
+            <div className='flex flex-col'>
                 <div className='flex items-center h-[32px] justify-between'>
                     {/* cheboxgroup actions */}
                     <Checkbox isSelected={selectedAllFiles} onValueChange={selectAllFiles}>All</Checkbox>
@@ -146,7 +146,6 @@ export function ManageBoard({ pathUserID }) {
                             }}>🧺</Button>
                             <Button isIconOnly onClick={() => {
                                 selectedFiles.forEach(id => setPublic(id, true));
-                                console.log(userFiles);
                                 setSelectedFiles([]);
                                 setSelectedAllFiles(false);
                             }}>📢</Button>
@@ -159,39 +158,14 @@ export function ManageBoard({ pathUserID }) {
                     }
                 </div>
                 {/* user's uploaded files */}
-                <CheckboxGroup
-                    label="Select files"
-                    value={selectedFiles}
-                    onValueChange={setSelectedFiles}>
-                    {userFiles.map((file, _) => (
-                        <Checkbox value={file.id} key={_}
-                            classNames={{
-                                base: cn(
-                                    "inline-flex w-full bg-content1 m-0 max-w-full",
-                                    "hover:bg-content2 items-center justify-start",
-                                    "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
-                                    "data-[selected=true]:border-primary"
-                                ),
-                                label: "w-full",
-                            }}>
-                            <div className='flex items-center overflow-hidden'>
-                                <div className='truncate'>
-                                    <Link href={`/${pathUserID}/${file.name}?file_id=${file.id}`} className='text-primary'>
-                                        <span className='text-xs mr-2 bg-default-100 rounded'>#{file.id}</span>
-                                        <span className='underline truncate'>{file.name}</span>
-                                    </Link>
-                                </div>
-                                <div className="grow"></div>
-                                <span className='min-w-fit'>
-                                    {!file.public && "🔒"}
-                                </span>
-                            </div>
-                        </Checkbox>
-                    ))
-                    }
-                </CheckboxGroup >
+                <FileList
+                    userFiles={userFiles}
+                    selectedFiles={selectedFiles}
+                    setSelectedFiles={setSelectedFiles}
+                    pathUserID={pathUserID}
+                />
             </div>
-            <div className=''>
+            <div className='flex flex-col'>
                 <div className='flex items-center h-[32px] justify-between'>
                     {/* checkboxgroup actions */}
                     <Checkbox isSelected={selectedAllFilterdWS} onValueChange={selectAllFilterdWS}>All</Checkbox>
@@ -210,37 +184,89 @@ export function ManageBoard({ pathUserID }) {
                     }
                 </div>
                 {/* workspaces */}
-                <CheckboxGroup
-                    label="Select Workspaces"
-                    value={selectedWorkSpaces}
-                    onValueChange={setSelectedWorkSpaces}>
-                    {filteredWorkSpaces.map((ws, _) => (
-                        <Checkbox value={ws.id} key={_}
-                            classNames={{
-                                base: cn(
-                                    "inline-flex w-full bg-content1 m-0 max-w-full",
-                                    "hover:bg-content2 items-center justify-start",
-                                    "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
-                                    "data-[selected=true]:border-primary"
-                                ),
-                                label: "w-full",
-                            }}>
-                            <div className='flex items-center overflow-hidden'>
-                                <div className='truncate'>
-                                    <Link href={`/workspace/${ws.id}`} className='text-primary'>
-                                        <span className='text-xs mr-2 bg-default-100 rounded'>#{ws.id}</span>
-                                        <span className='underline truncate'>{ws.file_name}</span>
-                                    </Link>
-                                </div>
-                                <div className="grow"></div>
-                                <span className='min-w-fit'>
-                                    {ws.privilege=="manager" && "🦄"}
-                                </span>
-                            </div>
-                        </Checkbox>
-                    ))}
-                </CheckboxGroup>
+                <WorkspaceList
+                    filteredWorkSpaces={filteredWorkSpaces}
+                    selectedWorkSpaces={selectedWorkSpaces}
+                    setSelectedWorkSpaces={setSelectedWorkSpaces}
+                />
             </div>
         </div>
     )
 }
+
+function FileList({ userFiles, selectedFiles, setSelectedFiles, pathUserID }) {
+    return (
+        <CheckboxGroup
+            label="Select files"
+            value={selectedFiles}
+            onValueChange={setSelectedFiles}>
+            {userFiles.map((file, _) => (
+                <Checkbox value={file.id} key={_}
+                    classNames={{
+                        base: cn(
+                            "inline-flex w-full bg-content1 m-0 max-w-full",
+                            "hover:bg-content2 items-center justify-start",
+                            "cursor-pointer rounded-lg md:gap-2 md:p-4 border-2 border-transparent",
+                            "data-[selected=true]:border-primary"
+                        ),
+                        label: "w-full",
+                    }}>
+                    <div className='flex items-center overflow-hidden'>
+                        <div className='truncate'>
+                            <Link href={`/${pathUserID}/${file.name}?file_id=${file.id}`} className='text-primary'>
+                                <span className='text-xs mr-2 bg-default-100 rounded'>#{file.id}</span>
+                                <span className='underline truncate'>{file.name}</span>
+                            </Link>
+                        </div>
+                        <div className="grow"></div>
+                        <span className='min-w-fit'>
+                            {!file.public && "🔒"}
+                        </span>
+                    </div>
+                </Checkbox>
+            ))
+            }
+        </CheckboxGroup >
+    );
+}
+
+function WorkspaceList({
+    filteredWorkSpaces,
+    selectedWorkSpaces,
+    setSelectedWorkSpaces,
+}) {
+    return (
+        <CheckboxGroup
+            label="Select Workspaces"
+            value={selectedWorkSpaces}
+            onValueChange={setSelectedWorkSpaces}>
+            {filteredWorkSpaces.map((ws, _) => (
+                <Checkbox value={ws.id} key={_}
+                    classNames={{
+                        base: cn(
+                            "inline-flex w-full bg-content1 m-0 max-w-full",
+                            "hover:bg-content2 items-center justify-start",
+                            "cursor-pointer rounded-lg md:gap-2 md:p-4 border-2 border-transparent",
+                            "data-[selected=true]:border-primary"
+                        ),
+                        label: "w-full",
+                    }}>
+                    <div className='flex items-center overflow-hidden'>
+                        <div className='truncate'>
+                            <Link href={`/workspace/${ws.id}`} className='text-primary'>
+                                <span className='text-xs mr-2 bg-default-100 rounded'>#{ws.id}</span>
+                                <span className='underline truncate'>{ws.file_name}</span>
+                            </Link>
+                        </div>
+                        <div className="grow"></div>
+                        <span className='min-w-fit'>
+                            {ws.privilege == "manager" && "🦄"}
+                        </span>
+                    </div>
+                </Checkbox>
+            ))}
+        </CheckboxGroup>
+    );
+}
+
+export default WorkspaceList;
