@@ -14,13 +14,13 @@ jobs:
       name: development
     env:
       TBLS_DSN: "mysql://${{secrets.DB_USER}}:${{secrets.DB_PASSWORD}}@${{secrets.DB_HOST}}:${{secrets.DB_PORT}}/${{secrets.DB_DATABASE}}"
-      TBLS_DOC_PATH: "doc/database-schema"
+      TBLS_DOC_PATH: "schema/database"
     steps:
       -
         name: Checkout Wiki
         uses: actions/checkout@v4
         with:
-          repository: Yiipu/checkdown.wiki
+          ref: documents
           token: ${{secrets.PAT}}
       -
         uses: k1low/setup-tbls@v1
@@ -29,6 +29,7 @@ jobs:
         run: |
           rm -rf $TBLS_DOC_PATH
           tbls doc -t mermaid
+          ls
       -
         name: Push to wiki
         run: |
