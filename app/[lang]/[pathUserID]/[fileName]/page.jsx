@@ -26,15 +26,12 @@ export default async function Page({ params: { lang, pathUserID, fileName }, sea
 
     return (
         <main>
-            <div className="grid grid-cols-3 px-8">
-                <div className="col-span-1">
-                    <span>workspaces_on_this_file</span>
+            <div className="flex flex-col-reverse md:flex-row pt-2">
+                <div className='md:mr-8'>
                     {user && <WorkSpaceList fileID={fileID} />}
                 </div>
-                <div className="col-span-2">
-                    <div className="markdown-body overflow-auto h-[calc(100vh-88px)]" >
-                        {file && <MDXRemote source={file.content} />}
-                    </div>
+                <div className="markdown-body overflow-auto h-[calc(100vh-88px)] shadow-inner hover:shadow-lg" >
+                    {file && <MDXRemote source={file.content} />}
                 </div>
             </div>
         </main >

@@ -68,3 +68,15 @@ app.prepare().then(() => {
       console.log(`> Ready on http://${hostname}:${port}`);
     });
 });
+
+process.on('SIGINT', async () => {
+  console.log('Received SIGINT. Shutting down gracefully.');
+  await pool.end();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('Received SIGTERM. Shutting down gracefully.');
+  await pool.end();
+  process.exit(0);
+});
