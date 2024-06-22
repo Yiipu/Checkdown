@@ -1,19 +1,19 @@
 import { CodeBlock } from "./codeblock";
 import { CheckBox } from "./checkbox";
 import { Link } from "@nextui-org/link";
+import React from "react";
 
 function extractTaskItemChildren(props) {
     var firstString = "";
-    var children = [];
+    var children = React.Children.toArray(props.children);
 
-    if (typeof props.children == "string") {
-        firstString = String(props.children);
-        children = [firstString.slice(3)];
-    } else if (typeof props.children == "object") {
-        firstString = String(Array.from(props.children)[0]);
-        children = [firstString.slice(3), props.children.slice(1)];
-    } else {
-        return;
+    if (children.length > 0) {
+        if (typeof children[0] === "string" && children[0].startsWith("[ ]")) {
+            firstString = children[0].slice(0, 3);
+            children[0] = children[0].slice(3);
+        } else if (typeof children[0] === "object") {
+            return extractTaskItemChildren(children[0].props);
+        }
     }
 
     return { firstString, children };
@@ -40,7 +40,22 @@ export function customMDX(components) {
                     </li>
                 );
             }
-            return <li {...props} />;
+            return <li className="task-list-item" {...props} />;
+        },
+        p: (props) => {
+            const { firstString, children } = extractTaskItemChildren(props);
+
+            // convert task item to checkbox
+            if (firstString.slice(0, 3) == "[ ]") {
+                const name = `CheckID-${idCounter++}`;
+                return (
+                    <p style={{ margin: "0.25rem 0 0 0" }} >
+                        <CheckBox name={name} />
+                        {children}
+                    </p>
+                );
+            }
+            return <p {...props} />;
         },
         code: ((props) => {
             const isInlineCode = !props.className;
