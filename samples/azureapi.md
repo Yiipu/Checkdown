@@ -1,10 +1,14 @@
+一次完整的预测过程有以下几步：提交任务，获取任务的url，从url获取结果（此时任务可能尚未完成或失败）
+完整的api文档参考 [Azure Language Service](https://learn.microsoft.com/en-us/azure/ai-services/language-service/summarization/quickstart?tabs=document-summarization%2Cwindows&pivots=rest-api)
 
-## request
+> 可能是我的问题，但即使提供了正确的终结点和密钥，也可能得到未授权回应
+
+## 提交任务
 
 ```bash
-curl -i -X POST https://lang-checkdown.cognitiveservices.azure.com/language/analyze-text/jobs?api-version=2023-04-01 \
+curl -i -X POST <api-endpoint>jobs?api-version=2023-04-01 \
 -H "Content-Type: application/json" \
--H "Ocp-Apim-Subscription-Key: "d5d59eb6329743ceaab4eb790a2840dd"" \
+-H "Ocp-Apim-Subscription-Key: <api-key>" \
 -d \
 ' 
 {
@@ -31,12 +35,12 @@ curl -i -X POST https://lang-checkdown.cognitiveservices.azure.com/language/anal
 '
 ```
 
-## response
+## 从回应里获取任务url
 
 ```text
 HTTP/2 202 
 content-length: 0
-operation-location: https://lang-checkdown.cognitiveservices.azure.com/language/analyze-text/jobs/f05c66b8-3717-4e82-84c7-b694e5e74439?api-version=2023-04-01
+operation-location: <will-be-a-url>
 x-envoy-upstream-service-time: 166
 apim-request-id: de4623ba-cb2f-43ad-98a6-eba42023353c
 strict-transport-security: max-age=31536000; includeSubDomains; preload
@@ -45,7 +49,7 @@ x-ms-region: East US
 date: Fri, 21 Jun 2024 11:00:52 GMT
 ```
 
-## get-result later
+## 查询任务状态
 
 ```bash
 curl -X GET https://lang-checkdown.cognitiveservices.azure.com/language/analyze-text/jobs/f05c66b8-3717-4e82-84c7-b694e5e74439?api-version=2023-04-01 \
@@ -53,7 +57,7 @@ curl -X GET https://lang-checkdown.cognitiveservices.azure.com/language/analyze-
 -H "Ocp-Apim-Subscription-Key: "d5d59eb6329743ceaab4eb790a2840dd""
 ```
 
-## result
+## 任务成功时的回应
 
 ```json
 {
