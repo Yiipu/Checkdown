@@ -5,8 +5,9 @@ import { CheckboxGroup, Checkbox } from '@nextui-org/checkbox';
 
 import { cn } from '@nextui-org/theme';
 import { Button, ButtonGroup } from '@nextui-org/button';
+import { Tooltip } from '@nextui-org/tooltip';
 
-export function ManageBoard({ pathUserID }) {
+export function ManageBoard({ pathUserID, dictionary }) {
     const [userFiles, setUserFiles] = useState([]);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [selectedAllFiles, setSelectedAllFiles] = useState(false);
@@ -139,21 +140,27 @@ export function ManageBoard({ pathUserID }) {
                     {/* file actions */}
                     {selectedFiles.length !== 0 &&
                         <ButtonGroup size='sm'>
-                            <Button isIconOnly onClick={() => {
-                                selectedFiles.forEach(id => deleteFile(id));
-                                setSelectedFiles([]);
-                                setSelectedAllFiles(false);
-                            }}>🧺</Button>
-                            <Button isIconOnly onClick={() => {
-                                selectedFiles.forEach(id => setPublic(id, true));
-                                setSelectedFiles([]);
-                                setSelectedAllFiles(false);
-                            }}>📢</Button>
-                            <Button isIconOnly onClick={() => {
-                                selectedFiles.forEach(id => setPublic(id, false));
-                                setSelectedFiles([]);
-                                setSelectedAllFiles(false);
-                            }}>🙈</Button>
+                            <Tooltip content={dictionary.Tooltip.makePublic}>
+                                <Button isIconOnly onClick={() => {
+                                    selectedFiles.forEach(id => setPublic(id, true));
+                                    setSelectedFiles([]);
+                                    setSelectedAllFiles(false);
+                                }}>📢</Button>
+                            </Tooltip>
+                            <Tooltip content={dictionary.Tooltip.makePrivate}>
+                                <Button isIconOnly onClick={() => {
+                                    selectedFiles.forEach(id => setPublic(id, false));
+                                    setSelectedFiles([]);
+                                    setSelectedAllFiles(false);
+                                }}>🙈</Button>
+                            </Tooltip>
+                            <Tooltip content={dictionary.Tooltip.delete}>
+                                <Button isIconOnly  color='danger' onClick={() => {
+                                    selectedFiles.forEach(id => deleteFile(id));
+                                    setSelectedFiles([]);
+                                    setSelectedAllFiles(false);
+                                }}>🧺</Button>
+                            </Tooltip>
                         </ButtonGroup>
                     }
                 </div>
@@ -163,6 +170,7 @@ export function ManageBoard({ pathUserID }) {
                     selectedFiles={selectedFiles}
                     setSelectedFiles={setSelectedFiles}
                     pathUserID={pathUserID}
+                    dictionary={dictionary}
                 />
             </div>
             <div className='flex flex-col'>
@@ -172,14 +180,17 @@ export function ManageBoard({ pathUserID }) {
                     {/* filtered ws actions */}
                     {
                         selectedWorkSpaces.length !== 0 &&
+
                         <ButtonGroup size='sm'>
-                            <Button isIconOnly onClick={() => {
-                                selectedWorkSpaces.forEach(id => deleteWorkSpace(id));
-                                setSelectedWorkSpaces([]);
-                                setSelectedAllFilterdWS(false);
-                            }}>
-                                🧺
-                            </Button>
+                            <Tooltip content={dictionary.Tooltip.delete}>
+                                <Button isIconOnly color='danger' onClick={() => {
+                                    selectedWorkSpaces.forEach(id => deleteWorkSpace(id));
+                                    setSelectedWorkSpaces([]);
+                                    setSelectedAllFilterdWS(false);
+                                }}>
+                                    🧺
+                                </Button>
+                            </Tooltip>
                         </ButtonGroup>
                     }
                 </div>
@@ -188,13 +199,14 @@ export function ManageBoard({ pathUserID }) {
                     filteredWorkSpaces={filteredWorkSpaces}
                     selectedWorkSpaces={selectedWorkSpaces}
                     setSelectedWorkSpaces={setSelectedWorkSpaces}
+                    dictionary={dictionary}
                 />
             </div>
         </div>
     )
 }
 
-function FileList({ userFiles, selectedFiles, setSelectedFiles, pathUserID }) {
+function FileList({ userFiles, selectedFiles, setSelectedFiles, pathUserID, dictionary }) {
     return (
         <CheckboxGroup
             label="Select files"
@@ -219,9 +231,11 @@ function FileList({ userFiles, selectedFiles, setSelectedFiles, pathUserID }) {
                             </Link>
                         </div>
                         <div className="grow"></div>
-                        <span className='min-w-fit'>
-                            {!file.public && "🔒"}
-                        </span>
+                        <Tooltip content={dictionary.Tooltip.private}>
+                            <span className='min-w-fit'>
+                                {!file.public && "🔒"}
+                            </span>
+                        </Tooltip>
                     </div>
                 </Checkbox>
             ))
@@ -234,6 +248,7 @@ function WorkspaceList({
     filteredWorkSpaces,
     selectedWorkSpaces,
     setSelectedWorkSpaces,
+    dictionary
 }) {
     return (
         <CheckboxGroup
@@ -259,9 +274,11 @@ function WorkspaceList({
                             </Link>
                         </div>
                         <div className="grow"></div>
-                        <span className='min-w-fit'>
-                            {ws.privilege == "manager" && "🦄"}
-                        </span>
+                        <Tooltip content={dictionary.Tooltip.manager}>
+                            <span className='min-w-fit'>
+                                {ws.privilege == "manager" && "🦄"}
+                            </span>
+                        </Tooltip>
                     </div>
                 </Checkbox>
             ))}

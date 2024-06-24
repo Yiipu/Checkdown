@@ -4,8 +4,9 @@ import { Button } from "@nextui-org/button";
 import { useCallback, useState } from "react";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@nextui-org/modal";
 import Link from "next/link";
+import { Tooltip } from "@nextui-org/tooltip";
 
-export function Search({ dictionary }) {
+export function Search({ dictionary, tip }) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [fileResults, setFileResults] = useState([]);
@@ -22,7 +23,9 @@ export function Search({ dictionary }) {
 
     return (
         <div className="flex justify-around">
-            <button onClick={() => setOpen(true)} id="header-search">🍳</button>
+            <Tooltip content={tip}>
+                <button onClick={() => setOpen(true)} id="header-search">🍳</button>
+            </Tooltip>
             <Modal isOpen={open} onOpenChange={setOpen}
                 onClose={() => {
                     setFileResults([]);

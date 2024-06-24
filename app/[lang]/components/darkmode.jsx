@@ -1,9 +1,10 @@
 "use client";
 
+import { Tooltip } from "@nextui-org/tooltip";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
-export function ThemeSwitcher() {
+export function ThemeSwitcher({ tip }) {
     const [mounted, setMounted] = useState(false)
     const { theme, setTheme } = useTheme()
 
@@ -14,8 +15,10 @@ export function ThemeSwitcher() {
     if (!mounted) return null
 
     return (
-        <button onClick={() => setTheme(theme == 'light' ? 'dark' : 'light')}>
-            {theme == 'light' ? '🌞' : '🌜'}
-        </button>
+        <Tooltip content={tip}>
+            <button onClick={() => setTheme(theme == 'light' ? 'dark' : 'light')}>
+                {theme == 'light' ? '🌞' : '🌜'}
+            </button>
+        </Tooltip>
     )
 };

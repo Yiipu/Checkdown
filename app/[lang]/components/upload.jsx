@@ -8,8 +8,9 @@ import { Checkbox } from "@nextui-org/checkbox";
 import { Button } from "@nextui-org/button";
 import { Progress } from "@nextui-org/progress";
 import { canDrag } from "lib/client-utils";
+import { Tooltip } from "@nextui-org/tooltip";
 
-export function FileDropZone({ dictionary }) {
+export function FileDropZone({ dictionary, tip }) {
 
     const isDraggable = useMemo(() => canDrag(), []);
 
@@ -79,9 +80,11 @@ export function FileDropZone({ dictionary }) {
     return (
         user &&
         <div className="flex justify-around">
-            <button onClick={() => { setOpen(true) }} id="header-upload">🎈</button>
+            <Tooltip content={tip}>
+                <button onClick={() => { setOpen(true) }} id="header-upload">🎈</button>
+            </Tooltip>
             <Modal isOpen={open} onOpenChange={setOpen} onClose={() => {
-                setFiles([]); setProgresses({}); setUploading(false) 
+                setFiles([]); setProgresses({}); setUploading(false)
             }}>
                 <ModalContent>
                     <ModalHeader>{dictionary.FileDrop.title}</ModalHeader>

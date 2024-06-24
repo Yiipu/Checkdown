@@ -9,6 +9,7 @@ import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@nextui-org/navb
 import { Search } from "./search";
 import { ThemeSwitcher } from "./darkmode";
 import { FileDropZone } from "./upload";
+import { Tooltip } from "@nextui-org/tooltip";
 
 export function LayoutHeader({ dictionary }) {
     const { user, isLoading } = useUser();
@@ -20,16 +21,16 @@ export function LayoutHeader({ dictionary }) {
             </NavbarContent>
             <NavbarContent justify="end">
                 <NavbarItem className="flex gap-2">
-                    <ThemeSwitcher />
-                    <Search dictionary={dictionary}/>
-                    <FileDropZone dictionary={dictionary} />
-                    {user && <JoinWorkSpaceBtn dictionary={dictionary}/>}
+                    <ThemeSwitcher tip={dictionary.Tooltip.darkMode} />
+                    <Search dictionary={dictionary} tip={dictionary.Tooltip.search} />
+                    <FileDropZone dictionary={dictionary} tip={dictionary.Tooltip.fileDrop} />
+                    {user && <JoinWorkSpaceBtn dictionary={dictionary} tip={dictionary.Tooltip.joinByCode}/>}
                 </NavbarItem>
                 {/* user info */}
                 <NavbarItem className="h-[40px]">
                     {isLoading ?
                         <Skeleton className="w-[173px] h-[40px] rounded-full" />
-                        : user ? <HeaderUser user={user} dictionary={dictionary}/>
+                        : user ? <HeaderUser user={user} dictionary={dictionary} />
                             : <Button>
                                 <Link href="/api/auth/login">Login</Link>
                             </Button>}
