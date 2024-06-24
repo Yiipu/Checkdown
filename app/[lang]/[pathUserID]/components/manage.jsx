@@ -131,7 +131,7 @@ export function ManageBoard({ pathUserID }) {
     }, [])
 
     return (
-        <div className='flex flex-col md:flex-row'>
+        <div className='flex flex-col md:flex-row justify-between'>
             <div className='flex flex-col'>
                 <div className='flex items-center h-[32px] justify-between'>
                     {/* cheboxgroup actions */}

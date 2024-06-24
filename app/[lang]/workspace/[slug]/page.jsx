@@ -10,71 +10,82 @@ import { ShareCodeBtn, LeaveWorkspaceBtn } from "./components/function/btn";
 import { TableOfContents } from "./components/mdx/toc";
 import '/styles/github-markdown.css'
 import { Avatar, AvatarGroup } from "@nextui-org/avatar";
+import { ButtonGroup } from "@nextui-org/button";
+
+async function getData({ user, slug }) {
+    var data = { created: null, privilege: null, f_id: null, f_name: null, file: null, progress: null, invite_code: null, users: null };
+
+    const connection = await pool.getConnection();
+
+    // get workspace details
+    try {
+        var [workSpace,] = await connection.execute(
+            "SELECT created, privilege, f_id, f_name FROM w_uw_view WHERE id = ? AND u_id = ?;",
+            [slug, user.sub]
+        );
+        if (workSpace.length == 0) {
+            // user not in workspace || workspace not found
+            return notFound();
+        }
+        // @assert(workSpace.length == 1)
+        workSpace = workSpace[0];
+        data.created = workSpace.created;
+        data.privilege = workSpace.privilege;
+        data.f_id = workSpace.f_id;
+        data.f_name = workSpace.f_name;
+        try {
+            const [[file]] = await pool.execute(
+                "SELECT f_name AS name, f as content FROM u_f_view WHERE f_id = ? AND (is_public = true OR u_id = ?);",
+                [data.f_id, user.sub]
+            );
+            data.file = file.content;
+        } catch (err) {
+            // file not found
+            console.error(err);
+            return notFound();
+        }
+    } catch (err) {
+        // database connection error
+        console.error(err);
+        return notFound();
+    }
+
+    // get invite code
+    try {
+        const sql = "SELECT invite_code, code_expire_at FROM workspaces WHERE id = ?;";
+        var [inviteCode,] = await connection.execute(sql, [slug]);
+        data.invite_code = inviteCode[0].invite_code && inviteCode[0].code_expire_at > new Date() ? inviteCode[0].invite_code : null;
+    } catch (err) {
+        console.error(err);
+        return notFound();
+    }
+
+    // get users
+    try {
+        // users [{nickname, picture, email, id, privilege}]
+        const [users,] = await connection.execute(
+            "SELECT users.nickname AS nickname, users.picture AS picture, users.email AS email, w_uw_view.u_id AS id, w_uw_view.privilege AS privilege " +
+            "FROM w_uw_view " +
+            "JOIN users ON w_uw_view.u_id = users.sub " +
+            "WHERE w_uw_view.id = ?;",
+            [slug]
+        );
+        data.users = users;
+    } catch (err) {
+        console.error(err);
+        return notFound();
+    }
+
+    connection.release();
+    return data;
+}
 
 export default withPageAuthRequired(
     // ensuer user logged in
     async function Page({ params: { lang, slug } }) {
         const dict = await getDictionary(lang);
-
         const { user } = await getSession();
-        var data = { created: null, privilege: null, f_id: null, f_name: null, file: null, progress: null, invite_code: null, users: null };
-
-        const connection = await pool.getConnection();
-
-        // get workspace details
-        try {
-            var [workSpace,] = await connection.execute(
-                "SELECT created, privilege, f_id, f_name FROM w_uw_view WHERE id = ? AND u_id = ?;",
-                [slug, user.sub]
-            );
-            if (workSpace.length == 0) {
-                // user not in workspace || workspace not found
-                return notFound();
-            }
-            // @assert(workSpace.length == 1)
-            workSpace = workSpace[0];
-            data.created = workSpace.created;
-            data.privilege = workSpace.privilege;
-            data.f_id = workSpace.f_id;
-            data.f_name = workSpace.f_name;
-            try {
-                const [[file]] = await pool.execute(
-                    "SELECT f_name AS name, f as content FROM u_f_view WHERE f_id = ? AND (is_public = true OR u_id = ?);",
-                    [data.f_id, pathUserID]
-                );
-                data.file = file.content;
-            } catch (err) {
-                // file not found
-                console.error(err);
-                return notFound();
-            }
-        } catch (err) {
-            // database connection error
-            console.error(err);
-            return notFound();
-        }
-
-        // get invite code
-        try {
-            const sql = "SELECT invite_code, code_expire_at FROM workspaces WHERE id = ?;";
-            var [inviteCode,] = await connection.execute(sql, [slug]);
-            data.invite_code = inviteCode[0].invite_code && inviteCode[0].code_expire_at > new Date() ? inviteCode[0].invite_code : null;
-        } catch (err) {
-            console.error(err);
-            return notFound();
-        }
-
-        // get users
-        try {
-            const sql = "SELECT u_id, privilege FROM w_uw_view WHERE id = ?;";
-            var [users,] = await connection.execute(sql, [slug]);
-            data.users = users;
-        } catch (err) {
-            console.error(err);
-            return notFound();
-        }
-
-        connection.release();
+        const data = await getData({ user, slug });
 
         // encrypt user id and workspace id for socket connection
         const encryptedUserID = encrypt(JSON.stringify(user.sub));
@@ -94,7 +105,9 @@ export default withPageAuthRequired(
                         <section>Participants</section>
                         <AvatarGroup>
                             {data.users.map((user) => (
-                                <Avatar key={user.u_id} />
+                                <Avatar key={user.u_id}
+                                    name={user.nickname}
+                                    src={user.picture} />
                             ))}
                         </AvatarGroup>
                     </div>
