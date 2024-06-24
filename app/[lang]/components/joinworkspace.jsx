@@ -4,8 +4,9 @@ import { useRouter } from 'next/navigation'
 import { Popover, PopoverTrigger, PopoverContent } from "@nextui-org/popover";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
+import { Tooltip } from "@nextui-org/tooltip";
 
-export function JoinWorkSpaceBtn({dictionary}) {
+export function JoinWorkSpaceBtn({ dictionary, tip }) {
     const [code, setCode] = useState();
     const router = useRouter()
 
@@ -23,7 +24,9 @@ export function JoinWorkSpaceBtn({dictionary}) {
     return (
         <Popover>
             <PopoverTrigger>
-                <button id="header-join">➕</button>
+                <Tooltip content={tip}>
+                    <button id="header-join">➕</button>
+                </Tooltip>
             </PopoverTrigger>
             <PopoverContent>
                 <div className="flex">

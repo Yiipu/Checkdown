@@ -1,4 +1,5 @@
 import { ProfileTab } from "./components/tabs";
+import { getDictionary } from "lib/dictionaries";
 
 async function getUser(pathUserID) {
     const res = await fetch(`${process.env.AUTH0_BASE_URL}/api/users/${pathUserID}`);
@@ -7,6 +8,7 @@ async function getUser(pathUserID) {
 }
 
 export default async function Page({ params: { lang, pathUserID }, searchParams: { tab } }) {
+    const dictionary = await getDictionary(lang);
     const pathUser = await getUser(pathUserID);
     if (!pathUser) {
         return (
@@ -20,7 +22,7 @@ export default async function Page({ params: { lang, pathUserID }, searchParams:
 
     return (
         <div className="pt-2">
-            <ProfileTab selectedKey={tab} pathUserID={decodedPathUserID} pathUser={pathUser} />
+            <ProfileTab selectedKey={tab} pathUserID={decodedPathUserID} pathUser={pathUser} dictionary={dictionary} />
         </div>
     )
 }

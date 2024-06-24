@@ -7,7 +7,7 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import { ManageBoard } from "./manage";
 import { Home } from "./home";
 
-export function ProfileTab({ selectedKey, pathUserID, pathUser }) {
+export function ProfileTab({ selectedKey, pathUserID, pathUser, dictionary }) {
     const pathname = usePathname();
     const { user } = useUser();
     const isOwner = user?.sub === pathUserID;
@@ -20,7 +20,7 @@ export function ProfileTab({ selectedKey, pathUserID, pathUser }) {
                 <Home pathUser={pathUser} />
             </Tab>
             <Tab key="manage" title={<Link href={`${pathname}?tab=manage`}>Manage Files</Link>}>
-                <ManageBoard pathUserID={pathUserID} />
+                <ManageBoard pathUserID={pathUserID} dictionary={dictionary} />
             </Tab>
         </Tabs>
     )

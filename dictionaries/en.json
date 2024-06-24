@@ -28,5 +28,17 @@
   "HeaderUser": {
     "logout": "Logout",
     "profile": "Profile"
+  },
+  "Tooltip": {
+    "darkMode": "Toggle dark mode",
+    "search": "Search files",
+    "fileDrop": "Upload files",
+    "joinByCode": "Join workspace by code",
+    "deleteFiles": "Delete selected files",
+    "makePublic": "Make selected files public",
+    "makePrivate": "Make selected files private",
+    "private": "Private",
+    "manager": "Manager",
+    "delete": "Delete"
   }
 }

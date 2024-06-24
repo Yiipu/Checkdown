@@ -1,7 +1,7 @@
 {
   "MetaData": {
     "description": "Checkdown 是一个简单的 Markdown 预览器，可以让您与团队实时处理清单。",
-    "keywords":"markdown, previewer, checklist, 团队, 实时, 合作, workspace, 邀请, 邀请码, 分享, 上传, 搜索, 源代码, github, react, socket, 开源"
+    "keywords": "markdown, previewer, checklist, 团队, 实时, 合作, workspace, 邀请, 邀请码, 分享, 上传, 搜索, 源代码, github, react, socket, 开源"
   },
   "HomePage": {
     "description": " 是一个简单的 Markdown 预览器，可以让您与团队实时处理清单。",
@@ -28,5 +28,17 @@
   "HeaderUser": {
     "logout": "登出",
     "profile": "我的档案"
+  },
+  "Tooltip": {
+    "darkMode": "切换深/亮色模式",
+    "search": "搜索文件",
+    "fileDrop": "上传文件",
+    "joinByCode": "加入工作区",
+    "deleteFiles": "删除文件",
+    "makePublic": "将选中的文件设为公开",
+    "makePrivate": "将选中的文件设为私有",
+    "private": "私有",
+    "manager": "管理员",
+    "delete": "删除"
   }
 }
