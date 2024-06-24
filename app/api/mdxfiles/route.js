@@ -1,6 +1,5 @@
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
-import { insertFile } from "lib/database";
-import { pool } from 'lib/pool'
+import { pool, handleTransaction } from 'lib/pool'
 
 import { EventEmitter } from "events";
 import { setTimeout } from "timers";
@@ -165,24 +164,34 @@ export const POST = withApiAuthRequired(async function (req) {
 
     const { user } = await getSession(req, res);
     const userID = user.sub;
-
-    const searchParams = req.nextUrl.searchParams;
-    const isPublic = searchParams.get('is_public') == "true" || 1;
-
+    const isPublic = req.nextUrl.searchParams.get('is_public') == "true" ? 1 : 0;
     const formData = await req.formData();
     const file = formData.get("file");
     const fileBuffer = await file.arrayBuffer();
 
-    const dbRes = await insertFile(fileBuffer, file.name, userID, isPublic);
-    const status = dbRes.error ? dbRes.status : 201;
+    try {
+        const dbRes = await handleTransaction(async (connection) => {
+            // Validate file size and type
+            if (fileBuffer.byteLength > 16777215) throw new Error("File size too large.");
+            if (!["mdx", "md"].includes(file.name.split(".").pop())) throw new Error("File type not accepted");
 
-    if (status == 201) {
-        setTimeout(() => {
-            emitter.emit('fileUploaded', fileBuffer, dbRes.fileID, file.name);
-        }, Math.floor(Math.random() * 10000)); // random time span to avoid 429 error from Azure
+            // Check if file already exists
+            const [alreadyExists] = await connection.execute("SELECT 1 FROM u_f_view WHERE f_name = ? AND u_id = ?;", [file.name, userID]);
+            if (alreadyExists.length) throw new Error("File already exists.");
+
+            // Insert file and user_file records
+            await connection.execute("INSERT INTO mdx_files (file, file_name) VALUES (?, ?);", [fileBuffer, file.name]);
+            const [[{id: fileID}]] = await connection.execute("SELECT LAST_INSERT_ID() as id;");
+            await connection.execute("INSERT INTO user_files (user_sub, file_id, is_public) VALUES (?, ?, ?);", [userID, fileID, isPublic]);
+
+            return { fileID, fileName: file.name };
+        });
+
+        setTimeout(() => emitter.emit('fileUploaded', fileBuffer, dbRes.fileID, file.name), Math.floor(Math.random() * 10000));
+        return new Response(JSON.stringify(dbRes), { status: 201 });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message, status: 500 }), { status: 500 });
     }
-
-    return new Response(JSON.stringify(dbRes), { status: status }, { res });
 });
 
 /**

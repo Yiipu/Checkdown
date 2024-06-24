@@ -1,5 +1,5 @@
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
-import { pool } from "/lib/pool";
+import { pool, handleTransaction } from "/lib/pool";
 
 /**
  * @swagger
@@ -30,36 +30,27 @@ export const POST = withApiAuthRequired(async function (req) {
     const res = new Response();
     const { user } = await getSession(req, res);
     const userID = user.sub;
-
-    const searchParams = req.nextUrl.searchParams;
-    const fileID = searchParams.get("file_id");
-
-    const connection = await pool.getConnection();
+    const fileID = req.nextUrl.searchParams.get("file_id");
 
     try {
-        await connection.beginTransaction();
-        await connection.execute("INSERT INTO workspaces (file_id) VALUES (?);", [fileID]);
-        const workSpaceID =
-            (await connection.query("SELECT LAST_INSERT_ID() as id;"))[0][0].id;
-        await connection.execute(
-            "INSERT INTO user_workspaces (user_sub, workspace_id, privilege) VALUES (?, ?, ?);",
-            [
-                userID,
-                workSpaceID,
-                "manager",
-            ]);
-        // file popularity + 1
-        await connection.execute(
-            "UPDATE mdx_files SET popularity = popularity + 1 WHERE id = ?;",
-            [fileID]
-        );
-        await connection.commit();
-        connection.release();
-        return new Response(JSON.stringify({ workSpaceID: workSpaceID }), { status: 201 });
+        const dbRes = await handleTransaction(async (connection) => {
+            await connection.execute("INSERT INTO workspaces (file_id) VALUES (?);", [fileID]);
+            const [[{ id: workSpaceID }]] = await connection.query("SELECT LAST_INSERT_ID() as id;");
+            await connection.execute(
+                "INSERT INTO user_workspaces (user_sub, workspace_id, privilege) VALUES (?, ?, ?);",
+                [userID, workSpaceID, "manager"]
+            );
+            // file popularity + 1
+            await connection.execute(
+                "UPDATE mdx_files SET popularity = popularity + 1 WHERE id = ?;",
+                [fileID]
+            );
+            return { workSpaceID };
+        });
+
+        return new Response(JSON.stringify(dbRes), { status: 201 });
     } catch (error) {
         console.error(error);
-        await connection.rollback();
-        connection.release();
         return new Response(JSON.stringify({ error: "database error" }), { status: 500 });
     }
 });
