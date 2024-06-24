@@ -7,7 +7,7 @@ export function Home({ pathUser }) {
     const [files, setFiles] = useState(null);
 
     useEffect(() => {
-        fetch(`/api/mdxfiles?user_id=${pathUser.id}&is_public=${true}`)
+        fetch(`/api/mdxfiles?user_id=${pathUser.id}&is_public=1`)
             .then(res => res.json())
             .then(data => {
                 setFiles(data.data);

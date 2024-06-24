@@ -43,7 +43,7 @@ export const PATCH = withApiAuthRequired(async function (req, { params: { fileID
 
     const searchParams = req.nextUrl.searchParams
     const isPublic = searchParams.get('is_public') == null ?
-        null : searchParams.get('is_public') == "true" || 1;
+        null : searchParams.get('is_public') == "true" ? 1 : 0;
 
     if (isPublic === null) {
         return new Response(null, { status: 400 }, res);
