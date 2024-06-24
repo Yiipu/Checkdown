@@ -1,5 +1,6 @@
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { pool, handleTransaction } from 'lib/pool'
+import emitter from "lib/eventBus";
 
 /**
  * @swagger
@@ -54,6 +55,9 @@ export const PATCH = withApiAuthRequired(async function (req, { params: { fileID
             "UPDATE u_f_view SET is_public = IFNULL(?, is_public) WHERE f_id = ?;",
             [isPublic, fileID]
         );
+        if (isPublic){
+            emitter.emit('LangTaskRequired', fileID);
+        }
         return new Response(null, { status: 200 }, res);
     } catch (err) {
         console.error(err);
