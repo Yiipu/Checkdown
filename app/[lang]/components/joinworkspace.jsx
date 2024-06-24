@@ -24,9 +24,11 @@ export function JoinWorkSpaceBtn({ dictionary, tip }) {
     return (
         <Popover>
             <PopoverTrigger>
-                <Tooltip content={tip}>
-                    <button id="header-join">➕</button>
-                </Tooltip>
+                <button id="header-join">
+                    <Tooltip content={tip}>
+                        ➕
+                    </Tooltip>
+                </button>
             </PopoverTrigger>
             <PopoverContent>
                 <div className="flex">
