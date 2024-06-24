@@ -10,6 +10,7 @@ This app uses environment variables for deployment. You can provide them using a
 2. Set up an Auth app in [Auth0](https://auth0.com) and follow their instructions. Provide environment variables starting with `AUTH0`.
 3. Generate an [AES](https://en.m.wikipedia.org/wiki/Advanced_Encryption_Standard) key and provide the environment variable `AES_KEY`.
 4. Set up a document summarization service in [Azure](https://learn.microsoft.com/en-us/azure/ai-services/language-service/summarization/overview?tabs=document-summarization) and provide environment variables starting with `AZURE_LANGUAGE`.
+5. Add `Login Flow` in Auth0 to add user to database using `sample/loginflow.js`.
 
 🎉 You are good to go! Use the following commands to start the Next.js server on `http://localhost:3000` and check for any errors.
 
