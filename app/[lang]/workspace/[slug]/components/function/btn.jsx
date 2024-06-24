@@ -29,16 +29,16 @@ export function ShareCodeBtn({ workspaceID, initCode }) {
     }
 
     return (
-        <div className="h-[36px]">
+        <>
             {code ?
-                <div className="flex ">
+                <>
                     <Snippet size="sm" hideSymbol>{code}</Snippet>
-                    <button onClick={expireCode} color="danger" size="sm">🗑️</button>
-                </div>
+                    <Button onClick={expireCode} color="danger" size="sm" isIconOnly>🗑️</Button>
+                </>
                 :
-                <button onClick={generateCode} size="sm">📤 generate_code</button>
+                <Button onClick={generateCode} size="sm">📤 generate_code</Button>
             }
-        </div>
+        </>
     );
 }
 
@@ -56,6 +56,6 @@ export function LeaveWorkspaceBtn({ workspaceID }) {
     }
 
     return (
-        <button onClick={leaveWorkspace} className="h-[36px]" color="danger">❌ leave</button>
+        <Button onClick={leaveWorkspace} className="h-[36px]" color="danger">❌ leave</Button>
     );
 }
