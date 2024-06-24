@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { customMDX } from "./components/mdx/custommdx";
 import { SocketProvider } from "./components/socket/socketprovider";
-import { encrypt, getFile } from "lib/utils";
+import { encrypt } from "lib/utils";
 import { ShareCodeBtn, LeaveWorkspaceBtn } from "./components/function/btn";
 import { TableOfContents } from "./components/mdx/toc";
 import '/styles/github-markdown.css'
@@ -17,7 +17,7 @@ export default withPageAuthRequired(
         const dict = await getDictionary(lang);
 
         const { user } = await getSession();
-        var data = { created: null, privilege: null, f_id: null, f_name: null, file: null, progress: null, invite_code: null, users: null};
+        var data = { created: null, privilege: null, f_id: null, f_name: null, file: null, progress: null, invite_code: null, users: null };
 
         const connection = await pool.getConnection();
 
@@ -38,7 +38,10 @@ export default withPageAuthRequired(
             data.f_id = workSpace.f_id;
             data.f_name = workSpace.f_name;
             try {
-                const file = await getFile(data.f_id, user.sub);
+                const [[file]] = await pool.execute(
+                    "SELECT f_name AS name, f as content FROM u_f_view WHERE f_id = ? AND (is_public = true OR u_id = ?);",
+                    [data.f_id, pathUserID]
+                );
                 data.file = file.content;
             } catch (err) {
                 // file not found
