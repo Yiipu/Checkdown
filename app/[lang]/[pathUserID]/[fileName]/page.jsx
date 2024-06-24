@@ -3,7 +3,7 @@ import { getDictionary } from '/lib/dictionaries'
 import { WorkSpaceList } from './components/workspacelist'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import "/styles/github-markdown.css"
-import { getFile } from 'lib/utils';
+import {pool} from "lib/pool"
 
 export default async function Page({ params: { lang, pathUserID, fileName }, searchParams }) {
     // localization
@@ -17,7 +17,10 @@ export default async function Page({ params: { lang, pathUserID, fileName }, sea
     const isOwner = user ? (user.sub === pathUserID) : false;
 
     // get file
-    const file = await getFile(fileID, user?.sub || null);
+    const [[file]] = await pool.execute(
+        "SELECT f_name AS name, f as content FROM u_f_view WHERE f_id = ? AND (is_public = true OR u_id = ?);",
+        [fileID, pathUserID]
+    );
 
     // return 404 when file not found
     if (!file) {
