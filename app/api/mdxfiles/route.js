@@ -1,129 +1,7 @@
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { pool, handleTransaction } from 'lib/pool'
 
-import { EventEmitter } from "events";
-import { setTimeout } from "timers";
-const emitter = new EventEmitter();
-
-emitter.on("fileSummarized", async (fileID, operationLocation) => {
-    console.log(`Starting to summarize file with ID: ${fileID}`);
-    fetch(operationLocation,
-        {
-            method: 'GET',
-            headers: {
-                'Ocp-Apim-Subscription-Key': process.env.AZURE_LANGUAGE_KEY
-            }
-        })
-        .then(res => {
-            if (!res.ok) {
-                console.log(`Retrying summarization for file ID: ${fileID} due to non-ok response.`);
-                setTimeout(() => {
-                    emitter.emit('fileSummarized', fileID, operationLocation);
-                }, 10000)
-                return;
-            }
-            return res.json();
-        })
-        .then(async data => {
-            if (data.status == "error"){
-                console.error(`Error getting result for file ID: ${fileID}: ${data.message}`);
-                pool.execute("UPDATE mdx_files SET description = ? WHERE id = ?;", ["Summarization failed. Retry by re-upload.",file]).catch(err => console.error(err));
-                return;
-            } else if (data.status !== "succeeded") {
-                console.log(`Summarization for file ID: ${fileID} is ${data.status}. Retrying...`);
-                setTimeout(() => {
-                    emitter.emit('fileSummarized', fileID, operationLocation);
-                }, 10000)
-                return;
-            }
-            // actually only one item in the task array. 
-            // API document https://learn.microsoft.com/rest/api/language/analyze-text-job-status/analyze-text-job-status?view=rest-language-2023-04-01&tabs=HTTP#abstractivesummarizationlroresult
-            data.tasks.items.map(async (item) => {
-                if (item.status == "failed") {
-                    console.error(`Summarization failed for file ID: ${fileID}`, item.results.errors);
-                } else if (item.status == "succeeded") {
-                    console.log(`Summarization succeeded for file ID: ${fileID}. Updating database.`);
-                    const query = "UPDATE mdx_files SET description = ? WHERE id = ?;";
-                    var text = item.results.documents[0].summaries[0].text;
-                    if (text.length > 1024) {
-                        text = text.substring(0, 1024);
-                    } else if (text.length == 0) {
-                        text = "No summary available";
-                        console.log(`No summary available for file ID: ${fileID}. Retrying...`);
-                        setTimeout(() => {
-                            emitter.emit('fileSummarized', fileID, operationLocation);
-                        }, 10000)
-                    }
-                    const params = [text, fileID];
-                    pool.execute(query, params).catch(err => console.error(err));
-                } else {
-                    console.log(`Status unknown for file ID: ${fileID}. Retrying...`);
-                    setTimeout(() => {
-                        emitter.emit('fileSummarized', fileID, operationLocation);
-                    }, 10000)
-                }
-            })
-        })
-        .catch(err => {
-            console.error(`Error getting result for file ID: ${fileID}: ${err}. Retrying in 10 seconds.`);
-            setTimeout(() => {
-                emitter.emit('fileSummarized', fileID, operationLocation);
-            }, 10000)
-        });
-});
-
-emitter.on('fileUploaded', async (fileBuffer, fileID, fileName) => {
-    console.log(`Starting upload for file: ${fileName} with ID: ${fileID}`);
-    fetch(process.env.AZURE_LANGUAGE_ENDPOINT + "/language/analyze-text/jobs?api-version=2023-04-01",
-        {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Ocp-Apim-Subscription-Key': process.env.AZURE_LANGUAGE_KEY
-            },
-            body: JSON.stringify(
-                {
-                    "displayName": "Text Abstractive Summarization Task Example",
-                    "analysisInput": {
-                        "documents": [
-                            {
-                                "id": "1",
-                                "language": "en",
-                                "text": Buffer.from(fileBuffer).toString()
-                            }
-                        ]
-                    },
-                    "tasks": [
-                        {
-                            "kind": "AbstractiveSummarization",
-                            "taskName": `Summarize ${fileName}`,
-                            "parameters": {
-                                "summaryLength": "short"
-                            }
-                        }
-                    ]
-                }
-            )
-        })
-        .then(res => {
-            if (!res.ok) {
-                console.log(`Retrying upload for file: ${fileName} with ID: ${fileID} due to non-ok response.`);
-                setTimeout(() => {
-                    emitter.emit("fileUploaded", fileBuffer, fileID, fileName);
-                }, 10000)
-                return;
-            };
-            const operationLocation = res.headers.get("operation-location");
-            console.log(`Upload succeeded for file: ${fileName} with ID: ${fileID}. Operation location: ${operationLocation}`);
-            emitter.emit('fileSummarized', fileID, operationLocation);
-        })
-        .catch(err => {
-            console.error(`Error adding language task for file: ${fileName} with ID: ${fileID}: ${err}. Retrying in 10 seconds.`);
-            setTimeout(() => {
-                emitter.emit("fileUploaded", fileBuffer, fileID, fileName);
-            }, 10000)
-        });
-});
+import emitter from "lib/eventBus";
 
 /**
  * @swagger
@@ -181,14 +59,15 @@ export const POST = withApiAuthRequired(async function (req) {
 
             // Insert file and user_file records
             await connection.execute("INSERT INTO mdx_files (file, file_name) VALUES (?, ?);", [fileBuffer, file.name]);
-            const [[{id: fileID}]] = await connection.execute("SELECT LAST_INSERT_ID() as id;");
+            const [[{ id: fileID }]] = await connection.execute("SELECT LAST_INSERT_ID() as id;");
             await connection.execute("INSERT INTO user_files (user_sub, file_id, is_public) VALUES (?, ?, ?);", [userID, fileID, isPublic]);
+
+            if (isPublic) {
+                setTimeout(() => emitter.emit('LangTaskRequired', fileID), Math.floor(Math.random() * 10000));
+            }
 
             return { fileID, fileName: file.name };
         });
-        if (isPublic){
-            setTimeout(() => emitter.emit('fileUploaded', fileBuffer, dbRes.fileID, file.name), Math.floor(Math.random() * 10000));
-        }
         return new Response(JSON.stringify(dbRes), { status: 201 });
     } catch (error) {
         return new Response(JSON.stringify({ error: error.message, status: 500 }), { status: 500 });
