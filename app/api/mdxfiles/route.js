@@ -186,8 +186,9 @@ export const POST = withApiAuthRequired(async function (req) {
 
             return { fileID, fileName: file.name };
         });
-
-        setTimeout(() => emitter.emit('fileUploaded', fileBuffer, dbRes.fileID, file.name), Math.floor(Math.random() * 10000));
+        if (isPublic){
+            setTimeout(() => emitter.emit('fileUploaded', fileBuffer, dbRes.fileID, file.name), Math.floor(Math.random() * 10000));
+        }
         return new Response(JSON.stringify(dbRes), { status: 201 });
     } catch (error) {
         return new Response(JSON.stringify({ error: error.message, status: 500 }), { status: 500 });
