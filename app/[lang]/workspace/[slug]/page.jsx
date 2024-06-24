@@ -19,9 +19,11 @@ export default withPageAuthRequired(
         const { user } = await getSession();
         var data = { created: null, privilege: null, f_id: null, f_name: null, file: null, progress: null, invite_code: null, users: null};
 
+        const connection = await pool.getConnection();
+
         // get workspace details
         try {
-            var [workSpace,] = await pool.execute(
+            var [workSpace,] = await connection.execute(
                 "SELECT created, privilege, f_id, f_name FROM w_uw_view WHERE id = ? AND u_id = ?;",
                 [slug, user.sub]
             );
@@ -52,7 +54,7 @@ export default withPageAuthRequired(
         // get invite code
         try {
             const sql = "SELECT invite_code, code_expire_at FROM workspaces WHERE id = ?;";
-            var [inviteCode,] = await pool.execute(sql, [slug]);
+            var [inviteCode,] = await connection.execute(sql, [slug]);
             data.invite_code = inviteCode[0].invite_code && inviteCode[0].code_expire_at > new Date() ? inviteCode[0].invite_code : null;
         } catch (err) {
             console.error(err);
@@ -62,12 +64,14 @@ export default withPageAuthRequired(
         // get users
         try {
             const sql = "SELECT u_id, privilege FROM w_uw_view WHERE id = ?;";
-            var [users,] = await pool.execute(sql, [slug]);
+            var [users,] = await connection.execute(sql, [slug]);
             data.users = users;
         } catch (err) {
             console.error(err);
             return notFound();
         }
+
+        connection.release();
 
         // encrypt user id and workspace id for socket connection
         const encryptedUserID = encrypt(JSON.stringify(user.sub));

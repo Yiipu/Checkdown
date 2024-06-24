@@ -1,5 +1,5 @@
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
-import { pool } from 'lib/pool'
+import { pool, handleTransaction } from 'lib/pool'
 
 /**
  * @swagger
@@ -114,35 +114,20 @@ export const GET = async function (req, { params: { fileID } }) {
     }
 };
 
-async function handleTransaction(pool, fn) {
-    const connection = await pool.getConnection();
-    try {
-        await connection.beginTransaction();
-        await fn(connection);
-        await connection.commit();
-    } catch (error) {
-        await connection.rollback();
-        console.error(error);
-    } finally {
-        connection.release();
-    }
-}
-
 export const DELETE = withApiAuthRequired(async function (req, { params: { fileID } }) {
     const res = new Response();
 
     const { user } = await getSession(req, res);
     const userID = user.sub;
 
-    const [privilege,] = await pool.execute(
-        "SELECT 1 FROM u_f_view WHERE f_id = ? AND u_id = ?;",
-        [fileID, userID]
-    );
-    if (privilege.length == 0) {
-        return new Response(null, { status: 403 }, res);
-    }
-
-    await handleTransaction(pool, async (connection) => {
+    await handleTransaction(async (connection) => {
+        const [privilege,] = await connection.execute(
+            "SELECT 1 FROM u_f_view WHERE f_id = ? AND u_id = ?;",
+            [fileID, userID]
+        );
+        if (privilege.length == 0) {
+            return new Response(null, { status: 403 }, res);
+        }
 
         const [wsIDs,] = await connection.execute(
             "SELECT id FROM workspaces WHERE file_id = ?;",
