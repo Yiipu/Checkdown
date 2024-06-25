@@ -6,8 +6,9 @@ import { cn } from '@nextui-org/theme';
 import { Button, ButtonGroup } from '@nextui-org/button';
 import { Checkbox, CheckboxGroup } from '@nextui-org/checkbox';
 import { Modal, ModalContent, ModalBody, ModalHeader } from '@nextui-org/modal';
+import { Tooltip } from '@nextui-org/tooltip';
 
-export function WorkSpaceList({ fileID }) {
+export function WorkSpaceList({ fileID, dictionary }) {
     const [open, setOpen] = useState(false);
     const [shouldShowModal, setShouldShowModal] = useState(false);
 
@@ -40,14 +41,14 @@ export function WorkSpaceList({ fileID }) {
                         </ModalContent>
                     </Modal>
                 </div> :
-                <Actions fileID={fileID} />
+                <Actions fileID={fileID} dictionary={dictionary} />
             }
         </>
 
     )
 }
 
-function Actions({ fileID }) {
+function Actions({ fileID, dictionary }) {
     const [workSpace, setWorkSpace] = useState([]);
     const [selectedWorkSpace, setSelectedWorkSpace] = useState([]);
     const [selectedAll, setSelectedAll] = useState(false);
@@ -107,23 +108,27 @@ function Actions({ fileID }) {
             <div className='flex items-center h-[32px] justify-between'>
                 <Checkbox isSelected={selectedAll} onValueChange={selectAll}>All</Checkbox>
                 <ButtonGroup size='sm'>
-                    <Button isIconOnly
-                        onClick={() => {
-                            createWorkSpace();
-                        }}>
-                        ➕
-                    </Button>
-                    <Button isIconOnly
-                        onClick={() => {
-                            if (selectedWorkSpace) {
-                                selectedWorkSpace.map(ws => {
-                                    deleteWorkSpace(ws);
-                                });
-                                setWorkSpace(workSpace.filter(w => !selectedWorkSpace.includes(w.id)));
-                            }
-                        }}>
-                        🧺
-                    </Button>
+                    <Tooltip content={dictionary.Tooltip.createWS}>
+                        <Button isIconOnly
+                            onClick={() => {
+                                createWorkSpace();
+                            }}>
+                            ➕
+                        </Button>
+                    </Tooltip>
+                    <Tooltip content={dictionary.Tooltip.delete}>
+                        <Button isIconOnly color='danger'
+                            onClick={() => {
+                                if (selectedWorkSpace) {
+                                    selectedWorkSpace.map(ws => {
+                                        deleteWorkSpace(ws);
+                                    });
+                                    setWorkSpace(workSpace.filter(w => !selectedWorkSpace.includes(w.id)));
+                                }
+                            }}>
+                            🧺
+                        </Button>
+                    </Tooltip>
                 </ButtonGroup>
             </div>
 

@@ -72,6 +72,20 @@ export function ManageBoard({ pathUserID, dictionary }) {
         getData();
     }, [pathUserID])
 
+    // create workspace
+    const createWorkSpace = useCallback(async (fileID) => {
+        await fetch(`/api/workspaces?file_id=${fileID}`, {
+            method: "POST",
+        }).then(res => {
+            if (res.ok) return res.json();
+            else throw new Error("failed to create workspace");
+        }).then(data => {
+            setWorkSpaces([...workSpaces, { id: data.workSpaceID, time_created: new Date(), privilege: "manager" }]);
+        }).catch(err => {
+            console.error(err);
+        });
+    }, [workSpaces]);
+
     // action: file select all or none
     const selectAllFiles = useCallback(() => {
         if (selectedAllFiles) {
@@ -140,6 +154,13 @@ export function ManageBoard({ pathUserID, dictionary }) {
                     {/* file actions */}
                     {selectedFiles.length !== 0 &&
                         <ButtonGroup size='sm'>
+                            <Tooltip content={dictionary.Tooltip.createWS}>
+                                <Button isIconOnly onClick={() => {
+                                    selectedFiles.forEach(id => createWorkSpace(id));
+                                    setSelectedFiles([]);
+                                    setSelectedAllFiles(false);
+                                }}>➕</Button>
+                            </Tooltip>
                             <Tooltip content={dictionary.Tooltip.makePublic}>
                                 <Button isIconOnly onClick={() => {
                                     selectedFiles.forEach(id => setPublic(id, true));
@@ -155,7 +176,7 @@ export function ManageBoard({ pathUserID, dictionary }) {
                                 }}>🙈</Button>
                             </Tooltip>
                             <Tooltip content={dictionary.Tooltip.delete}>
-                                <Button isIconOnly  color='danger' onClick={() => {
+                                <Button isIconOnly color='danger' onClick={() => {
                                     selectedFiles.forEach(id => deleteFile(id));
                                     setSelectedFiles([]);
                                     setSelectedAllFiles(false);

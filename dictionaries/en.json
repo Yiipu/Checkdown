@@ -39,6 +39,7 @@
     "makePrivate": "Make selected files private",
     "private": "Private",
     "manager": "Manager",
-    "delete": "Delete"
+    "delete": "Delete",
+    "createWS": "Create workspace"
   }
 }

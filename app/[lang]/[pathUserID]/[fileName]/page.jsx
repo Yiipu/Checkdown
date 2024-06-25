@@ -3,7 +3,7 @@ import { getDictionary } from '/lib/dictionaries'
 import { WorkSpaceList } from './components/workspacelist'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import "/styles/github-markdown.css"
-import {pool} from "lib/pool"
+import { pool } from "lib/pool"
 
 export default async function Page({ params: { lang, pathUserID, fileName }, searchParams }) {
     // localization
@@ -31,7 +31,7 @@ export default async function Page({ params: { lang, pathUserID, fileName }, sea
         <main>
             <div className="flex flex-col-reverse md:flex-row pt-2">
                 <div className='md:mr-8'>
-                    {user && <WorkSpaceList fileID={fileID} />}
+                    {user && <WorkSpaceList fileID={fileID} dictionary={dict} />}
                 </div>
                 <div className="markdown-body overflow-auto h-[calc(100vh-88px)] shadow-inner hover:shadow-lg" >
                     {file && <MDXRemote source={file.content} />}

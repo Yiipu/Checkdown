@@ -39,6 +39,7 @@
     "makePrivate": "将选中的文件设为私有",
     "private": "私有",
     "manager": "管理员",
-    "delete": "删除"
+    "delete": "删除",
+    "createWS": "创建工作区"
   }
 }
