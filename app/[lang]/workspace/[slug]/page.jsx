@@ -98,7 +98,7 @@ export default withPageAuthRequired(
                     <TableOfContents />
                     <div className=" pt-6">
                         <section>Actions</section>
-                        <ShareCodeBtn workspaceID={slug} initCode={data.invite_code} />
+                        {data.privilege == "manager" && <ShareCodeBtn workspaceID={slug} initCode={data.invite_code} />}
                         <LeaveWorkspaceBtn workspaceID={slug} />
                     </div>
                     <div className="pt-6">
