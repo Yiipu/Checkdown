@@ -19,7 +19,7 @@ export default async function Page({ params: { lang, pathUserID, fileName }, sea
     // get file
     const [[file]] = await pool.execute(
         "SELECT f_name AS name, f as content FROM u_f_view WHERE f_id = ? AND (is_public = true OR u_id = ?);",
-        [fileID, pathUserID]
+        [fileID, user.sub]
     );
 
     // return 404 when file not found
