@@ -163,21 +163,25 @@ export const GET = (async function (req) {
     }
 
     try {
-        let query = "SELECT u_id AS user_id, f_name AS name, f_id AS id , is_public AS public, description FROM u_f_view ";
+        let query = "SELECT u_f_view.u_id AS user_id, u_f_view.f_name AS name, u_f_view.f_id AS id, u_f_view.is_public AS public, u_f_view.description, mdx_files.popularity ";
+        query += "FROM u_f_view JOIN mdx_files ON u_f_view.f_id = mdx_files.id ";
+
         let params = [];
 
         if (isPublic !== null) {
-            query += "WHERE is_public = ? ";
+            query += "WHERE u_f_view.is_public = ? ";
             params.push(isPublic);
         }
         if (pathUserID !== null) {
-            query += (params.length ? "AND " : "WHERE ") + "u_id = ? ";
+            query += (params.length ? "AND " : "WHERE ") + "u_f_view.u_id = ? ";
             params.push(pathUserID);
         }
         if (fileName !== null) {
-            query += (params.length ? "AND " : "WHERE ") + "MATCH(f_name) AGAINST(?)"
+            query += (params.length ? "AND " : "WHERE ") + "MATCH(u_f_view.f_name) AGAINST(?) ";
             params.push(fileName);
         }
+
+        query += "ORDER BY mdx_files.popularity DESC ";
 
         query += "LIMIT ?, ?;";
         params.push(offset || "0", limit || "100");
