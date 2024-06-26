@@ -1,6 +1,8 @@
+[中文](./README.zh.md) | English
+
 This is the document branch of Checkdown. You can find everything needed to host this app yourself.
 
-## Setup
+## 🛠️ Setup
 
 This app uses environment variables for deployment. You can provide them using a `.env` file or system environment variables. The `.env.sample` file describes all the necessary variables.
 
@@ -8,7 +10,7 @@ This app uses environment variables for deployment. You can provide them using a
 
 1. Set up a MySQL database and create tables using `sample/init.sql`. Provide environment variables starting with `DB` for database connection.
 2. Set up an Auth app in [Auth0](https://auth0.com) and follow their instructions. Provide environment variables starting with `AUTH0`.
-3. Generate an [AES](https://en.m.wikipedia.org/wiki/Advanced_Encryption_Standard) key and provide the environment variable `AES_KEY`.
+3. Generate an [AES-256](https://en.m.wikipedia.org/wiki/Advanced_Encryption_Standard) key and provide the environment variable `AES_KEY`.
 4. Set up a document summarization service in [Azure](https://learn.microsoft.com/en-us/azure/ai-services/language-service/summarization/overview?tabs=document-summarization) and provide environment variables starting with `AZURE_LANGUAGE`.
 5. Add `Login Flow` in Auth0 to add user to database using `sample/loginflow.js`.
 
@@ -19,7 +21,7 @@ npm install
 npm run dev
 ```
 
-## CI & CD
+## 💚 CI & CD
 
 This app uses GitHub Actions to automatically package a Docker image and deploy it to Azure. You can switch to the main branch and check the workflow file, which is preconfigured by Azure.
 
