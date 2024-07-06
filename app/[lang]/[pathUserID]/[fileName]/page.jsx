@@ -19,7 +19,7 @@ export default async function Page({ params: { lang, pathUserID, fileName }, sea
     // get file
     const [[file]] = await pool.execute(
         "SELECT f_name AS name, f as content FROM u_f_view WHERE f_id = ? AND (is_public = true OR u_id = ?);",
-        [fileID, user.sub]
+        [fileID, user?.sub || null]
     );
 
     // return 404 when file not found
@@ -31,7 +31,12 @@ export default async function Page({ params: { lang, pathUserID, fileName }, sea
         <main>
             <div className="flex flex-col-reverse md:flex-row pt-2">
                 <div className='md:mr-8'>
-                    {user && <WorkSpaceList fileID={fileID} dictionary={dict} />}
+                    {user ? <WorkSpaceList fileID={fileID} dictionary={dict} /> :
+                        <div className="text-center">
+                            <h3><a href="/api/auth/login" className=' underline text-primary'>{dict.General.pleaseLogin}</a></h3>
+                            <p>{dict.General.toUseWS}</p>
+                        </div>
+                    }
                 </div>
                 <div className="markdown-body overflow-auto h-[calc(100vh-88px)] shadow-inner hover:shadow-lg" >
                     {file && <MDXRemote source={file.content} />}

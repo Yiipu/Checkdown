@@ -24,14 +24,16 @@ function FileCard({ file }) {
     return (
         <Card className=" m-8">
             <CardHeader>
-                <User
-                    avatarProps={{
-                        src: user.picture,
-                        alt: user.nickname
-                    }}
-                    name={user.nickname}
-                    description={user.email}
-                />
+                <Link href={`/${file.user_id}`}>
+                    <User
+                        avatarProps={{
+                            src: user.picture,
+                            alt: user.nickname
+                        }}
+                        name={user.nickname}
+                        description={user.email}
+                    />
+                </Link>
             </CardHeader>
             <CardBody>
                 <Link href={`/${file.user_id}/${file.name}?file_id=${file.id}`}>

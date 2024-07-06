@@ -3,6 +3,9 @@ import { getDictionary } from "lib/dictionaries";
 
 async function getUser(pathUserID) {
     const res = await fetch(`${process.env.AUTH0_BASE_URL}/api/users/${pathUserID}`);
+    if (!res.ok) {
+        return null;
+    }
     const data = await res.json();
     return data;
 }

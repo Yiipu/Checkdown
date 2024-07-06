@@ -16,10 +16,16 @@ export function ProfileTab({ selectedKey, pathUserID, pathUser, dictionary }) {
 
     return (
         <Tabs aria-label="Options" selectedKey={selectedKey} disabledKeys={disabledKeys}>
-            <Tab key="home" title={<Link href={`${pathname}?tab=home`} >Home</Link>}>
+            <Tab key="home" title={<Link href={`${pathname}?tab=home`}>Home</Link>}>
                 <Home pathUser={pathUser} />
             </Tab>
-            <Tab key="manage" title={<Link href={`${pathname}?tab=manage`}>Manage Files</Link>}>
+            <Tab key="manage" title={<Link href={`${pathname}?tab=manage`}
+                style={{ pointerEvents: isOwner ? 'auto' : 'none', opacity: isOwner ? 1 : 0.5 }}
+                onClick={(e) => {
+                    if (!isOwner) {
+                        e.preventDefault();
+                    }
+                }}>Manage Files</Link>}>
                 <ManageBoard pathUserID={pathUserID} dictionary={dictionary} />
             </Tab>
         </Tabs>

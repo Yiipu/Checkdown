@@ -41,5 +41,12 @@
     "manager": "Manager",
     "delete": "Delete",
     "createWS": "Create workspace"
+  },
+  "General":{
+    "pleaseLogin": "Please login.",
+    "toUseWS": "to use workspaces.",
+    "toJoinWS": "to join workspaces.",
+    "toUpload": "to upload files.",
+    "toDoAnything": "to use full functionality."
   }
 }

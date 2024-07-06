@@ -41,5 +41,12 @@
     "manager": "管理员",
     "delete": "删除",
     "createWS": "创建工作区"
+  },
+  "General": {
+    "pleaseLogin": "请登录",
+    "toUseWS": "以使用工作区功能",
+    "toJoinWS": "以加入工作区",
+    "toUpload": "以上传文件",
+    "toDoAnything": "以使用全部功能"
   }
 }
